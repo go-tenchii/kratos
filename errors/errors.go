@@ -44,15 +44,6 @@ func Errorf(code int32, reason, format string, a ...interface{}) error {
 	return Error(code, reason, fmt.Sprintf(format, a...))
 }
 
-// Reason returns the status for a particular error.
-// It supports wrapped errors.
-func Reason(err error) string {
-	if se := new(StatusError); errors.As(err, &se) {
-		return se.Reason
-	}
-	return UnknownReason
-}
-
 // Code returns the status code.
 func Code(err error) int32 {
 	if err == nil {
@@ -62,4 +53,13 @@ func Code(err error) int32 {
 		return se.Code
 	}
 	return 2 // unknown
+}
+
+// Reason returns the status for a particular error.
+// It supports wrapped errors.
+func Reason(err error) string {
+	if se := new(StatusError); errors.As(err, &se) {
+		return se.Reason
+	}
+	return UnknownReason
 }

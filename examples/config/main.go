@@ -13,7 +13,7 @@ import (
 var flagconf string
 
 func init() {
-	flag.StringVar(&flagconf, "conf", "config.yaml", "config path, eg: -conf ../configs")
+	flag.StringVar(&flagconf, "conf", "config.yaml", "config path, eg: -conf config.yaml")
 }
 
 func main() {

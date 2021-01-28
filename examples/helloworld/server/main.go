@@ -14,11 +14,9 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/status"
-	srvgrpc "github.com/go-kratos/kratos/v2/server/grpc"
-	srvhttp "github.com/go-kratos/kratos/v2/server/http"
 	"github.com/go-kratos/kratos/v2/transport"
-	transgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
-	transhttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/go-kratos/kratos/v2/transport/http"
 )
 
 // server is used to implement helloworld.GreeterServer.
@@ -46,11 +44,11 @@ func loggerInfo(logger log.Logger) middleware.Middleware {
 			if ok {
 				log.Infof("transport: %+v", tr)
 			}
-			h, ok := transhttp.FromContext(ctx)
+			h, ok := http.FromContext(ctx)
 			if ok {
 				log.Infof("http: [%s] %s", h.Request.Method, h.Request.URL.Path)
 			}
-			g, ok := transgrpc.FromContext(ctx)
+			g, ok := grpc.FromContext(ctx)
 			if ok {
 				log.Infof("grpc: %s", g.FullMethod)
 			}
@@ -61,7 +59,7 @@ func loggerInfo(logger log.Logger) middleware.Middleware {
 }
 
 func main() {
-	logger := stdlog.NewLogger(stdlog.Writer(os.Stdout), stdlog.Skip(4))
+	logger := stdlog.NewLogger(stdlog.Writer(os.Stdout))
 	defer logger.Close()
 
 	log := log.NewHelper("main", logger)
@@ -69,32 +67,30 @@ func main() {
 	s := &server{}
 	app := kratos.New()
 
-	httpTrans := transhttp.NewServer(transhttp.ServerMiddleware(
-		middleware.Chain(
-			logging.HTTPServer(logger),
-			status.Server(),
-			recovery.Recovery(),
-		),
-	))
-	grpcTrans := transgrpc.NewServer(transgrpc.ServerMiddleware(
-		middleware.Chain(
-			logging.GRPCServer(logger),
-			status.Server(),
-			recovery.Recovery(),
-		),
-	))
+	httpSrv := http.NewServer(
+		http.Address(":8000"),
+		http.Middleware(
+			middleware.Chain(
+				logging.HTTPServer(logger),
+				status.Server(),
+				recovery.Recovery(),
+			),
+		))
+	grpcSrv := grpc.NewServer(
+		grpc.Address(":9000"),
+		grpc.Middleware(
+			middleware.Chain(
+				logging.GRPCServer(logger),
+				status.Server(),
+				recovery.Recovery(),
+			),
+		))
 
-	httpTrans.Use(s, loggerInfo(logger))
-	grpcTrans.Use(s, loggerInfo(logger))
+	pb.RegisterGreeterServer(grpcSrv, s)
+	pb.RegisterGreeterHTTPServer(httpSrv, s)
 
-	httpServer := srvhttp.NewServer(srvhttp.Address(":8000"), srvhttp.Transport(httpTrans))
-	grpcServer := srvgrpc.NewServer(srvgrpc.Address(":9000"), srvgrpc.Transport(grpcTrans))
-
-	pb.RegisterGreeterServer(grpcServer, s)
-	pb.RegisterGreeterHTTPServer(httpTrans, s)
-
-	app.Append(httpServer)
-	app.Append(grpcServer)
+	app.Append(httpSrv)
+	app.Append(grpcSrv)
 
 	if err := app.Run(); err != nil {
 		log.Error(err)

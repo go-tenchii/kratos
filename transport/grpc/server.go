@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"net"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
@@ -10,50 +11,83 @@ import (
 )
 
 // ServerOption is gRPC server option.
-type ServerOption func(o *Server)
+type ServerOption func(o *serverOptions)
 
-// ServerMiddleware with server middleware.
-func ServerMiddleware(m middleware.Middleware) ServerOption {
-	return func(o *Server) {
-		o.globalMiddleware = m
+type serverOptions struct {
+	network    string
+	address    string
+	middleware middleware.Middleware
+}
+
+// Network with server network.
+func Network(network string) ServerOption {
+	return func(o *serverOptions) {
+		o.network = network
+	}
+}
+
+// Address with server address.
+func Address(addr string) ServerOption {
+	return func(o *serverOptions) {
+		o.address = addr
+	}
+}
+
+// Middleware with server middleware.
+func Middleware(m middleware.Middleware) ServerOption {
+	return func(o *serverOptions) {
+		o.middleware = m
 	}
 }
 
 // Server is a gRPC server wrapper.
 type Server struct {
-	globalMiddleware  middleware.Middleware
-	serviceMiddleware map[interface{}]middleware.Middleware
+	*grpc.Server
+	opts serverOptions
 }
 
 // NewServer creates a gRPC server by options.
 func NewServer(opts ...ServerOption) *Server {
-	srv := &Server{
-		serviceMiddleware: make(map[interface{}]middleware.Middleware),
+	options := serverOptions{
+		network: "tcp",
+		address: ":9000",
 	}
 	for _, o := range opts {
-		o(srv)
+		o(&options)
 	}
-	return srv
+	return &Server{
+		opts: options,
+		Server: grpc.NewServer(grpc.UnaryInterceptor(
+			UnaryInterceptor(options.middleware),
+		)),
+	}
 }
 
-// Use use a middleware to the transport.
-func (s *Server) Use(srv interface{}, m middleware.Middleware) {
-	s.serviceMiddleware[srv] = m
+// Start start the gRPC server.
+func (s *Server) Start(ctx context.Context) error {
+	lis, err := net.Listen(s.opts.network, s.opts.address)
+	if err != nil {
+		return err
+	}
+	return s.Serve(lis)
+}
+
+// Stop stop the gRPC server.
+func (s *Server) Stop(ctx context.Context) error {
+	s.GracefulStop()
+	return nil
 }
 
 // UnaryInterceptor returns a unary server interceptor.
-func (s *Server) UnaryInterceptor() grpc.UnaryServerInterceptor {
+func UnaryInterceptor(m middleware.Middleware) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		ctx = transport.NewContext(ctx, transport.Transport{Kind: "GRPC"})
 		ctx = NewContext(ctx, ServerInfo{Server: info.Server, FullMethod: info.FullMethod})
 		h := func(ctx context.Context, req interface{}) (interface{}, error) {
 			return handler(ctx, req)
 		}
-		if m, ok := s.serviceMiddleware[info.Server]; ok {
+		if m != nil {
 			h = m(h)
-		}
-		if s.globalMiddleware != nil {
-			h = s.globalMiddleware(h)
 		}
 		reply, err := h(ctx, req)
 		if err != nil {

@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"net"
 	"net/http"
 
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -34,77 +35,99 @@ type MethodDesc struct {
 	Handler serverMethodHandler
 }
 
-// ServerOption is HTTP server option.
-type ServerOption func(*Server)
+// DecodeRequestFunc is decode request func.
+type DecodeRequestFunc func(in interface{}, req *http.Request) error
 
-// ServerDecodeRequestFunc is decode request func.
-type ServerDecodeRequestFunc func(in interface{}, req *http.Request) error
+// EncodeResponseFunc is encode response func.
+type EncodeResponseFunc func(out interface{}, res http.ResponseWriter, req *http.Request) error
 
-// ServerEncodeResponseFunc is encode response func.
-type ServerEncodeResponseFunc func(out interface{}, res http.ResponseWriter, req *http.Request) error
-
-// ServerEncodeErrorFunc is encode error func.
-type ServerEncodeErrorFunc func(err error, res http.ResponseWriter, req *http.Request)
+// EncodeErrorFunc is encode error func.
+type EncodeErrorFunc func(err error, res http.ResponseWriter, req *http.Request)
 
 // RecoveryHandlerFunc is recovery handler func.
 type RecoveryHandlerFunc func(ctx context.Context, req, err interface{}) error
 
-// ServerRequestDecoder with decode request option.
-func ServerRequestDecoder(fn ServerEncodeErrorFunc) ServerOption {
-	return func(s *Server) {
+// ServerOption is HTTP server option.
+type ServerOption func(*serverOptions)
+
+type serverOptions struct {
+	network         string
+	address         string
+	requestDecoder  DecodeRequestFunc
+	responseEncoder EncodeResponseFunc
+	errorEncoder    EncodeErrorFunc
+	middleware      middleware.Middleware
+}
+
+// Network with server network.
+func Network(network string) ServerOption {
+	return func(o *serverOptions) {
+		o.network = network
+	}
+}
+
+// Address with server address.
+func Address(addr string) ServerOption {
+	return func(o *serverOptions) {
+		o.address = addr
+	}
+}
+
+// Middleware with server middleware option.
+func Middleware(m middleware.Middleware) ServerOption {
+	return func(s *serverOptions) {
+		s.middleware = m
+	}
+}
+
+// RequestDecoder with decode request option.
+func RequestDecoder(fn EncodeErrorFunc) ServerOption {
+	return func(s *serverOptions) {
 		s.errorEncoder = fn
 	}
 }
 
-// ServerResponseEncoder with response handler option.
-func ServerResponseEncoder(fn ServerEncodeResponseFunc) ServerOption {
-	return func(s *Server) {
+// ResponseEncoder with response handler option.
+func ResponseEncoder(fn EncodeResponseFunc) ServerOption {
+	return func(s *serverOptions) {
 		s.responseEncoder = fn
 	}
 }
 
-// ServerErrorEncoder with error handler option.
-func ServerErrorEncoder(fn ServerEncodeErrorFunc) ServerOption {
-	return func(s *Server) {
+// ErrorEncoder with error handler option.
+func ErrorEncoder(fn EncodeErrorFunc) ServerOption {
+	return func(s *serverOptions) {
 		s.errorEncoder = fn
-	}
-}
-
-// ServerMiddleware with server middleware option.
-func ServerMiddleware(m middleware.Middleware) ServerOption {
-	return func(s *Server) {
-		s.globalMiddleware = m
 	}
 }
 
 // Server is a HTTP server wrapper.
 type Server struct {
-	router            *mux.Router
-	requestDecoder    ServerDecodeRequestFunc
-	responseEncoder   ServerEncodeResponseFunc
-	errorEncoder      ServerEncodeErrorFunc
-	globalMiddleware  middleware.Middleware
-	serviceMiddleware map[interface{}]middleware.Middleware
+	*http.Server
+	router *mux.Router
+	opts   serverOptions
 }
 
 // NewServer creates a HTTP server by options.
 func NewServer(opts ...ServerOption) *Server {
-	srv := &Server{
-		router:            mux.NewRouter(),
-		requestDecoder:    DefaultRequestDecoder,
-		responseEncoder:   DefaultResponseEncoder,
-		errorEncoder:      DefaultErrorEncoder,
-		serviceMiddleware: make(map[interface{}]middleware.Middleware),
+	options := serverOptions{
+		network:         "tcp",
+		address:         ":8000",
+		requestDecoder:  DefaultRequestDecoder,
+		responseEncoder: DefaultResponseEncoder,
+		errorEncoder:    DefaultErrorEncoder,
 	}
 	for _, o := range opts {
-		o(srv)
+		o(&options)
 	}
-	return srv
-}
-
-// Use use a middleware to the transport.
-func (s *Server) Use(srv interface{}, m middleware.Middleware) {
-	s.serviceMiddleware[srv] = m
+	router := mux.NewRouter()
+	return &Server{
+		opts:   options,
+		router: router,
+		Server: &http.Server{
+			Handler: router,
+		},
+	}
 }
 
 // Handle registers a new route with a matcher for the URL path.
@@ -124,6 +147,20 @@ func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	s.router.ServeHTTP(res, req.WithContext(ctx))
 }
 
+// Start start the HTTP server.
+func (s *Server) Start(ctx context.Context) error {
+	lis, err := net.Listen(s.opts.network, s.opts.address)
+	if err != nil {
+		return err
+	}
+	return s.Serve(lis)
+}
+
+// Stop stop the HTTP server.
+func (s *Server) Stop(ctx context.Context) error {
+	return s.Shutdown(ctx)
+}
+
 // RegisterService registers a service and its implementation to the HTTP server.
 func (s *Server) RegisterService(sd *ServiceDesc, ss interface{}) {
 	for _, method := range sd.Methods {
@@ -136,20 +173,17 @@ func (s *Server) registerHandle(srv interface{}, md MethodDesc) {
 		handler := func(ctx context.Context, in interface{}) (interface{}, error) {
 			return md.Handler(srv, ctx, req)
 		}
-		if m, ok := s.serviceMiddleware[srv]; ok {
-			handler = m(handler)
-		}
-		if s.globalMiddleware != nil {
-			handler = s.globalMiddleware(handler)
+		if s.opts.middleware != nil {
+			handler = s.opts.middleware(handler)
 		}
 		reply, err := handler(req.Context(), req)
 		if err != nil {
-			s.errorEncoder(err, res, req)
+			s.opts.errorEncoder(err, res, req)
 			return
 		}
 
-		if err := s.responseEncoder(reply, res, req); err != nil {
-			s.errorEncoder(err, res, req)
+		if err := s.opts.responseEncoder(reply, res, req); err != nil {
+			s.opts.errorEncoder(err, res, req)
 			return
 		}
 
