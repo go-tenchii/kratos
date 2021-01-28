@@ -58,7 +58,7 @@ func (h *Helper) V(v Verbose) Logger {
 	if h.opts.verbose.Enabled(v) {
 		return nop
 	}
-	return With(h.info, VerboseKey, v)
+	return h.info
 }
 
 // Debug logs a message at debug level.
