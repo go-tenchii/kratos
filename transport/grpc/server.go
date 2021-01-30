@@ -17,6 +17,7 @@ type serverOptions struct {
 	network    string
 	address    string
 	middleware middleware.Middleware
+	grpcOpts   []grpc.ServerOption
 }
 
 // Network with server network.
@@ -40,6 +41,13 @@ func Middleware(m middleware.Middleware) ServerOption {
 	}
 }
 
+// Options with grpc options.
+func Options(opts ...grpc.ServerOption) ServerOption {
+	return func(o *serverOptions) {
+		o.grpcOpts = opts
+	}
+}
+
 // Server is a gRPC server wrapper.
 type Server struct {
 	*grpc.Server
@@ -55,11 +63,17 @@ func NewServer(opts ...ServerOption) *Server {
 	for _, o := range opts {
 		o(&options)
 	}
-	return &Server{
-		opts: options,
-		Server: grpc.NewServer(grpc.UnaryInterceptor(
+	var grpcOpts = []grpc.ServerOption{
+		grpc.UnaryInterceptor(
 			UnaryServerInterceptor(options.middleware),
-		)),
+		),
+	}
+	if len(options.grpcOpts) > 0 {
+		grpcOpts = append(grpcOpts, options.grpcOpts...)
+	}
+	return &Server{
+		opts:   options,
+		Server: grpc.NewServer(grpcOpts...),
 	}
 }
 

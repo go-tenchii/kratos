@@ -40,7 +40,7 @@ func WithMiddleware(m middleware.Middleware) ClientOption {
 }
 
 // WithOptions with gRPC options.
-func WithOptions(opts []grpc.DialOption) ClientOption {
+func WithOptions(opts ...grpc.DialOption) ClientOption {
 	return func(o *clientOptions) {
 		o.grpcOpts = opts
 	}
