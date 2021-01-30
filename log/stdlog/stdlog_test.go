@@ -40,7 +40,7 @@ func BenchmarkLoggerHelperV(b *testing.B) {
 	h := log.NewHelper("test", logger)
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			h.V(10).Print("log", "test")
+			h.V(10).Infow("log", "test")
 		}
 	})
 }

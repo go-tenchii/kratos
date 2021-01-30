@@ -2,6 +2,8 @@ package log
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 )
 
 var nop Logger = new(nopLogger)
@@ -11,7 +13,7 @@ type Option func(*options)
 
 type options struct {
 	level   Level
-	verbose Verbose
+	verbose int
 }
 
 // AllowLevel .
@@ -22,7 +24,7 @@ func AllowLevel(l Level) Option {
 }
 
 // AllowVerbose .
-func AllowVerbose(v Verbose) Option {
+func AllowVerbose(v int) Option {
 	return func(o *options) {
 		o.verbose = v
 	}
@@ -39,7 +41,11 @@ type Helper struct {
 
 // NewHelper new a logger helper.
 func NewHelper(name string, logger Logger, opts ...Option) *Helper {
-	options := options{}
+	v, _ := strconv.Atoi(os.Getenv("KRATOS_LOG_VERBOSE"))
+	options := options{
+		level:   GetLevel(os.Getenv("KRATOS_LOG_LEVEL")),
+		verbose: v,
+	}
 	for _, o := range opts {
 		o(&options)
 	}
@@ -54,11 +60,11 @@ func NewHelper(name string, logger Logger, opts ...Option) *Helper {
 }
 
 // V logs a message at verbose level.
-func (h *Helper) V(v Verbose) Logger {
-	if h.opts.verbose.Enabled(v) {
-		return nop
+func (h *Helper) V(v int) Verbose {
+	if h.opts.verbose >= v {
+		return Verbose{h.info}
 	}
-	return h.info
+	return Verbose{}
 }
 
 // Debug logs a message at debug level.
