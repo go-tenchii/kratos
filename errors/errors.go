@@ -63,3 +63,11 @@ func Reason(err error) string {
 	}
 	return UnknownReason
 }
+
+// FromError returns status error.
+func FromError(err error) (*StatusError, bool) {
+	if se := new(StatusError); errors.As(err, &se) {
+		return se, true
+	}
+	return nil, false
+}

@@ -23,30 +23,37 @@ func callHTTP() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := client.Get("http://127.0.0.1:8000/helloworld/kratos")
+	res, err := client.Get("http://127.0.0.1:8000/helloworld/kratos")
 	if err != nil {
 		log.Fatal(err)
 	}
-	var reply pb.HelloReply
-	if err := transhttp.DecodeResponse(resp, &reply); err != nil {
+	if err := transhttp.CheckResponse(res); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("hello %s\n", reply.Message)
+	reply := new(pb.HelloReply)
+	if err := transhttp.DecodeResponse(res, &reply); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("[http] hello %s\n", reply.Message)
+
 	// returns error
-	_, err = client.Get("http://127.0.0.1:8000/helloworld/error")
+	res, err = client.Get("http://127.0.0.1:8000/helloworld/error")
 	if err != nil {
-		log.Printf("SayHello error: %v\n", err)
+		log.Fatal(err)
+	}
+	if err = transhttp.CheckResponse(res); err != nil {
+		log.Printf("[http] SayHello error: %v\n", err)
 	}
 	if errors.IsInvalidArgument(err) {
-		log.Printf("SayHello error is invalid argument: %v\n", err)
+		log.Printf("[http] SayHello error is invalid argument: %v\n", err)
 	}
 }
 
 func callGRPC() {
 	conn, err := transgrpc.NewClient(
 		"127.0.0.1:9000",
-		transgrpc.ClientInsecure(),
-		transgrpc.ClientMiddleware(
+		transgrpc.WithInsecure(),
+		transgrpc.WithMiddleware(
 			middleware.Chain(
 				status.Client(),
 				recovery.Recovery(),
@@ -61,13 +68,14 @@ func callGRPC() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("SayHello %+v\n", reply)
+	log.Printf("[grpc] SayHello %+v\n", reply)
+
 	// returns error
 	_, err = client.SayHello(context.Background(), &pb.HelloRequest{Name: "error"})
 	if err != nil {
-		log.Printf("SayHello error: %v\n", err)
+		log.Printf("[grpc] SayHello error: %v\n", err)
 	}
 	if errors.IsInvalidArgument(err) {
-		log.Printf("SayHello error is invalid argument: %v\n", err)
+		log.Printf("[grpc] SayHello error is invalid argument: %v\n", err)
 	}
 }

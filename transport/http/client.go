@@ -14,41 +14,31 @@ import (
 // ClientOption is HTTP client option.
 type ClientOption func(*Client)
 
-// ClientDecodeErrorFunc is client error decoder.
-type ClientDecodeErrorFunc func(res *http.Response) error
-
-// ClientTimeout with client request timeout.
-func ClientTimeout(d time.Duration) ClientOption {
+// WithTimeout with client request timeout.
+func WithTimeout(d time.Duration) ClientOption {
 	return func(c *Client) {
 		c.timeout = d
 	}
 }
 
-// ClientKeepAlive with client keepavlie.
-func ClientKeepAlive(d time.Duration) ClientOption {
+// WithKeepAlive with client keepavlie.
+func WithKeepAlive(d time.Duration) ClientOption {
 	return func(c *Client) {
 		c.keepAlive = d
 	}
 }
 
-// ClientMaxIdleConns with client max idle conns.
-func ClientMaxIdleConns(n int) ClientOption {
+// WithMaxIdleConns with client max idle conns.
+func WithMaxIdleConns(n int) ClientOption {
 	return func(c *Client) {
 		c.maxIdleConns = n
 	}
 }
 
-// ClientUserAgent with client user agent.
-func ClientUserAgent(ua string) ClientOption {
+// WithUserAgent with client user agent.
+func WithUserAgent(ua string) ClientOption {
 	return func(c *Client) {
 		c.userAgent = ua
-	}
-}
-
-// ClientErrorDecoder with client error decoder.
-func ClientErrorDecoder(d ClientDecodeErrorFunc) ClientOption {
-	return func(c *Client) {
-		c.errorDecoder = d
 	}
 }
 
@@ -59,7 +49,6 @@ type Client struct {
 	keepAlive    time.Duration
 	maxIdleConns int
 	userAgent    string
-	errorDecoder ClientDecodeErrorFunc
 }
 
 // NewClient new a HTTP transport client.
@@ -68,7 +57,6 @@ func NewClient(opts ...ClientOption) (*http.Client, error) {
 		timeout:      500 * time.Millisecond,
 		keepAlive:    30 * time.Second,
 		maxIdleConns: 100,
-		errorDecoder: CheckResponse,
 	}
 	for _, o := range opts {
 		o(client)
@@ -90,21 +78,17 @@ func NewClient(opts ...ClientOption) (*http.Client, error) {
 }
 
 // RoundTrip is transport round trip.
-func (c *Client) RoundTrip(req *http.Request) (res *http.Response, err error) {
+func (c *Client) RoundTrip(req *http.Request) (*http.Response, error) {
 	if c.userAgent != "" && req.Header.Get("User-Agent") == "" {
 		req.Header.Set("User-Agent", c.userAgent)
 	}
-
 	ctx, cancel := context.WithTimeout(req.Context(), c.timeout)
 	defer cancel()
-	if res, err = c.base.RoundTrip(req.WithContext(ctx)); err != nil {
+	res, err := c.base.RoundTrip(req.WithContext(ctx))
+	if err != nil {
 		return nil, err
 	}
-
-	if err = c.errorDecoder(res); err != nil {
-		return nil, err
-	}
-	return
+	return res, nil
 }
 
 // CheckResponse returns an error (of type *Error) if the response
@@ -114,7 +98,7 @@ func CheckResponse(res *http.Response) error {
 		return nil
 	}
 	defer res.Body.Close()
-	slurp, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -123,12 +107,8 @@ func CheckResponse(res *http.Response) error {
 	if codec == nil {
 		return errors.Unknown("Unknown", "unknown contentType: %s", contentType)
 	}
-	code, ok := statusMapping[res.StatusCode]
-	if !ok {
-		code = 2
-	}
-	se := &errors.StatusError{Code: code}
-	if err := codec.Unmarshal(slurp, se); err != nil {
+	se := &errors.StatusError{}
+	if err := codec.Unmarshal(data, se); err != nil {
 		return err
 	}
 	return se

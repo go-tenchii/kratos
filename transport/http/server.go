@@ -56,9 +56,9 @@ func Middleware(m middleware.Middleware) ServerOption {
 }
 
 // RequestDecoder with decode request option.
-func RequestDecoder(fn EncodeErrorFunc) ServerOption {
+func RequestDecoder(fn DecodeRequestFunc) ServerOption {
 	return func(s *serverOptions) {
-		s.errorEncoder = fn
+		s.requestDecoder = fn
 	}
 }
 

@@ -13,10 +13,7 @@ option objc_class_prefix = "KratosErrors";
 
 message Status {
   int32 code = 1;
-
   string reason = 2;
-
   string message = 3;
-
   repeated google.protobuf.Any details = 4;
 }

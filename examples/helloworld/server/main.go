@@ -72,7 +72,6 @@ func main() {
 		http.Middleware(
 			middleware.Chain(
 				logging.HTTPServer(logger),
-				status.Server(),
 				recovery.Recovery(),
 			),
 		))

@@ -6,8 +6,9 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/ghodss/yaml v1.0.0
 	github.com/golang/protobuf v1.4.3
+	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/gorilla/mux v1.8.0
-	github.com/kr/pretty v0.1.0 // indirect
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/pelletier/go-toml v1.8.1
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a

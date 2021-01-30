@@ -45,7 +45,7 @@ func DefaultErrorEncoder(res http.ResponseWriter, req *http.Request, err error) 
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	data, err := codec.Marshal(se.Proto())
+	data, err := codec.Marshal(se)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return
