@@ -32,18 +32,18 @@ func contentSubtype(contentType string) string {
 	}
 }
 
-// RequestCodec returns request codec.
-func RequestCodec(req *http.Request) (encoding.Codec, error) {
+// requestCodec returns request codec.
+func requestCodec(req *http.Request) (encoding.Codec, error) {
 	contentType := req.Header.Get("content-type")
 	codec := encoding.GetCodec(contentSubtype(contentType))
 	if codec == nil {
-		return nil, errors.InvalidArgument("Errors_UnknownCodec", contentType)
+		return nil, errors.InvalidArgument("Codec", "not found codec: "+contentType)
 	}
 	return codec, nil
 }
 
-// ResponseCodec returns response codec.
-func ResponseCodec(req *http.Request) (string, encoding.Codec, error) {
+// responseCodec returns response codec.
+func responseCodec(req *http.Request) (string, encoding.Codec, error) {
 	accepts := req.Header.Values("accept")
 	for _, contentType := range accepts {
 		if codec := encoding.GetCodec(contentSubtype(contentType)); codec != nil {
@@ -53,5 +53,5 @@ func ResponseCodec(req *http.Request) (string, encoding.Codec, error) {
 	if codec := encoding.GetCodec("json"); codec != nil {
 		return defaultContentType, codec, nil
 	}
-	return "", nil, errors.InvalidArgument("Error_UnknownCodec", strings.Join(accepts, "; "))
+	return "", nil, errors.InvalidArgument("Codec", "not found codec: "+strings.Join(accepts, "; "))
 }

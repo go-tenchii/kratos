@@ -13,7 +13,7 @@ import (
 // context./http.
 const _ = http1.SupportPackageIsVersion1
 
-type EchoServiceHTTPServer interface {
+type EchoServiceService interface {
 	Echo(context.Context, *SimpleMessage) (*SimpleMessage, error)
 
 	EchoBody(context.Context, *SimpleMessage) (*SimpleMessage, error)
@@ -23,194 +23,184 @@ type EchoServiceHTTPServer interface {
 	EchoPatch(context.Context, *DynamicMessageUpdate) (*DynamicMessageUpdate, error)
 }
 
-func RegisterEchoServiceHTTPServer(s http1.ServiceRegistrar, srv EchoServiceHTTPServer) {
-	s.RegisterService(&_HTTP_EchoService_serviceDesc, srv)
-}
+func RegisterEchoServiceHTTPServer(s *http1.Server, srv EchoServiceService) {
+	r := s.Route("/")
 
-func _HTTP_EchoService_Echo_0(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.GET("/v1/example/echo/{id}/{num}", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).Echo(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).Echo(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_Echo_1(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.GET("/v1/example/echo/{id}/{num}/{lang}", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).Echo(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).Echo(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_Echo_2(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.GET("/v1/example/echo1/{id}/{line_num}/{status.note}", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).Echo(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).Echo(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_Echo_3(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.GET("/v1/example/echo2/{no.note}", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).Echo(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).Echo(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_Echo_4(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.POST("/v1/example/echo/{id}", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).Echo(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).Echo(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_EchoBody_0(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.POST("/v1/example/echo_body", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateBody(&in, req); err != nil {
-		return nil, err
-	}
+		if err := s.Decode(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).EchoBody(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).EchoBody(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_EchoDelete_0(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in SimpleMessage
+	r.DELETE("/v1/example/echo_delete", func(res http.ResponseWriter, req *http.Request) {
+		in := new(SimpleMessage)
 
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).EchoDelete(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).EchoDelete(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-func _HTTP_EchoService_EchoPatch_0(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in DynamicMessageUpdate
+	r.PATCH("/v1/example/echo_patch", func(res http.ResponseWriter, req *http.Request) {
+		in := new(DynamicMessageUpdate)
 
-	if err := http1.PopulateBody(in.Body, req); err != nil {
-		return nil, err
-	}
+		if err := s.Decode(req, in.Body); err != nil {
+			s.Error(res, req, err)
+			return
+		}
 
-	out, err := srv.(EchoServiceServer).EchoPatch(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.(EchoServiceService).EchoPatch(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out)
+	})
 
-var _HTTP_EchoService_serviceDesc = http1.ServiceDesc{
-	ServiceName: "grpc.gateway.examples.internal.proto.examplepb.EchoService",
-	HandlerType: (*EchoServiceHTTPServer)(nil),
-	Methods: []http1.MethodDesc{
-
-		{
-			Path:    "/v1/example/echo/{id}/{num}",
-			Method:  "GET",
-			Handler: _HTTP_EchoService_Echo_0,
-		},
-
-		{
-			Path:    "/v1/example/echo/{id}/{num}/{lang}",
-			Method:  "GET",
-			Handler: _HTTP_EchoService_Echo_1,
-		},
-
-		{
-			Path:    "/v1/example/echo1/{id}/{line_num}/{status.note}",
-			Method:  "GET",
-			Handler: _HTTP_EchoService_Echo_2,
-		},
-
-		{
-			Path:    "/v1/example/echo2/{no.note}",
-			Method:  "GET",
-			Handler: _HTTP_EchoService_Echo_3,
-		},
-
-		{
-			Path:    "/v1/example/echo/{id}",
-			Method:  "POST",
-			Handler: _HTTP_EchoService_Echo_4,
-		},
-
-		{
-			Path:    "/v1/example/echo_body",
-			Method:  "POST",
-			Handler: _HTTP_EchoService_EchoBody_0,
-		},
-
-		{
-			Path:    "/v1/example/echo_delete",
-			Method:  "DELETE",
-			Handler: _HTTP_EchoService_EchoDelete_0,
-		},
-
-		{
-			Path:    "/v1/example/echo_patch",
-			Method:  "PATCH",
-			Handler: _HTTP_EchoService_EchoPatch_0,
-		},
-	},
-	Metadata: "echo_service.proto",
 }

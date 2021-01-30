@@ -52,22 +52,14 @@ func ClientErrorDecoder(d ClientDecodeErrorFunc) ClientOption {
 	}
 }
 
-// ClientRecoveryHandler with server recovery handler.
-func ClientRecoveryHandler(h RecoveryHandlerFunc) ClientOption {
-	return func(c *Client) {
-		c.recoveryHandler = h
-	}
-}
-
 // Client is a HTTP transport client.
 type Client struct {
-	base            http.RoundTripper
-	timeout         time.Duration
-	keepAlive       time.Duration
-	maxIdleConns    int
-	userAgent       string
-	errorDecoder    ClientDecodeErrorFunc
-	recoveryHandler RecoveryHandlerFunc
+	base         http.RoundTripper
+	timeout      time.Duration
+	keepAlive    time.Duration
+	maxIdleConns int
+	userAgent    string
+	errorDecoder ClientDecodeErrorFunc
 }
 
 // NewClient new a HTTP transport client.
@@ -99,12 +91,6 @@ func NewClient(opts ...ClientOption) (*http.Client, error) {
 
 // RoundTrip is transport round trip.
 func (c *Client) RoundTrip(req *http.Request) (res *http.Response, err error) {
-	defer func() {
-		if rerr := recover(); rerr != nil {
-			err = c.recoveryHandler(req.Context(), req.Form, rerr)
-		}
-	}()
-
 	if c.userAgent != "" && req.Header.Get("User-Agent") == "" {
 		req.Header.Set("User-Agent", c.userAgent)
 	}

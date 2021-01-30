@@ -3,34 +3,32 @@ package http
 import (
 	"io/ioutil"
 	"net/http"
-
-	"github.com/go-kratos/kratos/v2/errors"
 )
 
 // DefaultRequestDecoder default request decoder.
-func DefaultRequestDecoder(in interface{}, req *http.Request) error {
-	codec, err := RequestCodec(req)
+func DefaultRequestDecoder(req *http.Request, v interface{}) error {
+	codec, err := requestCodec(req)
 	if err != nil {
 		return err
 	}
 	data, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return errors.DataLoss("DataLoss", err.Error())
+		return err
 	}
 	defer req.Body.Close()
-	if err = codec.Unmarshal(data, in); err != nil {
-		return errors.InvalidArgument("CodecUnmarshal", err.Error())
+	if err = codec.Unmarshal(data, v); err != nil {
+		return err
 	}
 	return nil
 }
 
 // DefaultResponseEncoder is default response encoder.
-func DefaultResponseEncoder(out interface{}, res http.ResponseWriter, req *http.Request) error {
-	contentType, codec, err := ResponseCodec(req)
+func DefaultResponseEncoder(res http.ResponseWriter, req *http.Request, v interface{}) error {
+	contentType, codec, err := responseCodec(req)
 	if err != nil {
 		return err
 	}
-	data, err := codec.Marshal(out)
+	data, err := codec.Marshal(v)
 	if err != nil {
 		return err
 	}
@@ -40,9 +38,9 @@ func DefaultResponseEncoder(out interface{}, res http.ResponseWriter, req *http.
 }
 
 // DefaultErrorEncoder is default errors encoder.
-func DefaultErrorEncoder(err error, res http.ResponseWriter, req *http.Request) {
+func DefaultErrorEncoder(res http.ResponseWriter, req *http.Request, err error) {
 	code, se := StatusError(err)
-	contentType, codec, err := ResponseCodec(req)
+	contentType, codec, err := responseCodec(req)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		return

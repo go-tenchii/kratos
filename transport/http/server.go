@@ -13,39 +13,14 @@ import (
 // SupportPackageIsVersion1 These constants should not be referenced from any other code.
 const SupportPackageIsVersion1 = true
 
-// ServiceRegistrar wraps a single method that supports service registration.
-type ServiceRegistrar interface {
-	RegisterService(desc *ServiceDesc, impl interface{})
-}
-
-// ServiceDesc represents a HTTP service's specification.
-type ServiceDesc struct {
-	ServiceName string
-	HandlerType interface{}
-	Methods     []MethodDesc
-	Metadata    interface{}
-}
-
-type serverMethodHandler func(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error)
-
-// MethodDesc represents a HTTP service's method specification.
-type MethodDesc struct {
-	Path    string
-	Method  string
-	Handler serverMethodHandler
-}
-
 // DecodeRequestFunc is decode request func.
-type DecodeRequestFunc func(in interface{}, req *http.Request) error
+type DecodeRequestFunc func(req *http.Request, v interface{}) error
 
 // EncodeResponseFunc is encode response func.
-type EncodeResponseFunc func(out interface{}, res http.ResponseWriter, req *http.Request) error
+type EncodeResponseFunc func(res http.ResponseWriter, req *http.Request, v interface{}) error
 
 // EncodeErrorFunc is encode error func.
-type EncodeErrorFunc func(err error, res http.ResponseWriter, req *http.Request)
-
-// RecoveryHandlerFunc is recovery handler func.
-type RecoveryHandlerFunc func(ctx context.Context, req, err interface{}) error
+type EncodeErrorFunc func(res http.ResponseWriter, req *http.Request, err error)
 
 // ServerOption is HTTP server option.
 type ServerOption func(*serverOptions)
@@ -53,10 +28,10 @@ type ServerOption func(*serverOptions)
 type serverOptions struct {
 	network         string
 	address         string
+	middleware      middleware.Middleware
 	requestDecoder  DecodeRequestFunc
 	responseEncoder EncodeResponseFunc
 	errorEncoder    EncodeErrorFunc
-	middleware      middleware.Middleware
 }
 
 // Network with server network.
@@ -130,14 +105,44 @@ func NewServer(opts ...ServerOption) *Server {
 	}
 }
 
+// Route .
+func (s *Server) Route(path string) *RouteGroup {
+	return &RouteGroup{root: path, router: s.router}
+}
+
 // Handle registers a new route with a matcher for the URL path.
-func (s *Server) Handle(path string, handler http.Handler) {
-	s.router.Handle(path, handler)
+func (s *Server) Handle(path string, h http.Handler) {
+	s.router.Handle(path, h)
 }
 
 // HandleFunc registers a new route with a matcher for the URL path.
-func (s *Server) HandleFunc(path string, h func(http.ResponseWriter, *http.Request)) {
+func (s *Server) HandleFunc(path string, h http.HandlerFunc) {
 	s.router.HandleFunc(path, h)
+}
+
+// Error .
+func (s *Server) Error(res http.ResponseWriter, req *http.Request, err error) {
+	s.opts.errorEncoder(res, req, err)
+}
+
+// Decode .
+func (s *Server) Decode(req *http.Request, v interface{}) error {
+	return s.opts.requestDecoder(req, v)
+}
+
+// Encode .
+func (s *Server) Encode(res http.ResponseWriter, req *http.Request, v interface{}) {
+	if err := s.opts.responseEncoder(res, req, v); err != nil {
+		s.Error(res, req, err)
+	}
+}
+
+// Invoke .
+func (s *Server) Invoke(ctx context.Context, req interface{}, h middleware.Handler) (interface{}, error) {
+	if s.opts.middleware != nil {
+		h = s.opts.middleware(h)
+	}
+	return h(ctx, req)
 }
 
 // ServeHTTP should write reply headers and data to the ResponseWriter and then return.
@@ -159,33 +164,4 @@ func (s *Server) Start(ctx context.Context) error {
 // Stop stop the HTTP server.
 func (s *Server) Stop(ctx context.Context) error {
 	return s.Shutdown(ctx)
-}
-
-// RegisterService registers a service and its implementation to the HTTP server.
-func (s *Server) RegisterService(sd *ServiceDesc, ss interface{}) {
-	for _, method := range sd.Methods {
-		s.registerHandle(ss, method)
-	}
-}
-
-func (s *Server) registerHandle(srv interface{}, md MethodDesc) {
-	s.router.HandleFunc(md.Path, func(res http.ResponseWriter, req *http.Request) {
-		handler := func(ctx context.Context, in interface{}) (interface{}, error) {
-			return md.Handler(srv, ctx, req)
-		}
-		if s.opts.middleware != nil {
-			handler = s.opts.middleware(handler)
-		}
-		reply, err := handler(req.Context(), req)
-		if err != nil {
-			s.opts.errorEncoder(err, res, req)
-			return
-		}
-
-		if err := s.opts.responseEncoder(reply, res, req); err != nil {
-			s.opts.errorEncoder(err, res, req)
-			return
-		}
-
-	}).Methods(md.Method)
 }

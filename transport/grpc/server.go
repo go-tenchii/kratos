@@ -58,7 +58,7 @@ func NewServer(opts ...ServerOption) *Server {
 	return &Server{
 		opts: options,
 		Server: grpc.NewServer(grpc.UnaryInterceptor(
-			UnaryInterceptor(options.middleware),
+			UnaryServerInterceptor(options.middleware),
 		)),
 	}
 }
@@ -78,8 +78,8 @@ func (s *Server) Stop(ctx context.Context) error {
 	return nil
 }
 
-// UnaryInterceptor returns a unary server interceptor.
-func UnaryInterceptor(m middleware.Middleware) grpc.UnaryServerInterceptor {
+// UnaryServerInterceptor returns a unary server interceptor.
+func UnaryServerInterceptor(m middleware.Middleware) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		ctx = transport.NewContext(ctx, transport.Transport{Kind: "GRPC"})
 		ctx = NewContext(ctx, ServerInfo{Server: info.Server, FullMethod: info.FullMethod})

@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,8 +18,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
-// PopulateVars parses url parameters.
-func PopulateVars(msg proto.Message, req *http.Request) error {
+// BindVars parses url parameters.
+func BindVars(req *http.Request, msg proto.Message) error {
 	for key, value := range Vars(req) {
 		if err := populateFieldValues(msg.ProtoReflect(), strings.Split(key, "."), []string{value}); err != nil {
 			return err
@@ -29,8 +28,8 @@ func PopulateVars(msg proto.Message, req *http.Request) error {
 	return nil
 }
 
-// PopulateForm parses query parameters
-func PopulateForm(msg proto.Message, req *http.Request) error {
+// BindForm parses query parameters
+func BindForm(req *http.Request, msg proto.Message) error {
 	if err := req.ParseForm(); err != nil {
 		return err
 	}
@@ -38,23 +37,6 @@ func PopulateForm(msg proto.Message, req *http.Request) error {
 		if err := populateFieldValues(msg.ProtoReflect(), strings.Split(key, "."), values); err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-// PopulateBody parses body payload.
-func PopulateBody(msg proto.Message, req *http.Request) error {
-	codec, err := RequestCodec(req)
-	if err != nil {
-		return err
-	}
-	data, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return err
-	}
-	defer req.Body.Close()
-	if err = codec.Unmarshal(data, msg); err != nil {
-		return err
 	}
 	return nil
 }

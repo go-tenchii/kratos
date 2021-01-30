@@ -7,58 +7,50 @@ import (
 )
 
 var httpTemplate = `
-type {{.ServiceType}}HTTPServer interface {
+type {{.ServiceType}}Service interface {
 {{range .MethodSets}}
 	{{.Name}}(context.Context, *{{.Request}}) (*{{.Reply}}, error)
 {{end}}
 }
 
-func Register{{.ServiceType}}HTTPServer(s http1.ServiceRegistrar, srv {{.ServiceType}}HTTPServer) {
-	s.RegisterService(&_HTTP_{{.ServiceType}}_serviceDesc, srv)
-}
-
+func Register{{.ServiceType}}HTTPServer(s *http1.Server, srv {{.ServiceType}}Service) {
+	r := s.Route("/")
 {{range .Methods}}
-func _HTTP_{{$.ServiceType}}_{{.Name}}_{{.Num}}(srv interface{}, ctx context.Context, req *http.Request) (interface{}, error) {
-	var in {{.Request}}
-{{if ne (len .Vars) 0}}
-	if err := http1.PopulateVars(&in, req); err != nil {
-		return nil, err
-	}
+	r.{{.Method}}("{{.Path}}", func(res http.ResponseWriter, req *http.Request) {
+		in := new({{.Request}})
+		{{if ne (len .Vars) 0}}
+		if err := http1.BindVars(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		{{end}}
+		{{if eq .Body ""}}
+		if err := http1.BindForm(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		{{else if eq .Body ".*"}}
+		if err := s.Decode(req, in); err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		{{else}}
+		if err := s.Decode(req, in{{.Body}}); err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		{{end}}
+		h := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.({{$.ServiceType}}Service).{{.Name}}(ctx, in)
+		}
+		out, err := s.Invoke(req.Context(), in, h)
+		if err != nil {
+			s.Error(res, req, err)
+			return
+		}
+		s.Encode(res, req, out{{.ResponseBody}})
+	})
 {{end}}
-{{if eq .Body ""}}
-	if err := http1.PopulateForm(&in, req); err != nil {
-		return nil, err
-	}
-{{else if eq .Body ".*"}}
-	if err := http1.PopulateBody(&in, req); err != nil {
-		return nil, err
-	}
-{{else}}
-	if err := http1.PopulateBody(in{{.Body}}, req); err != nil {
-		return nil, err
-	}
-{{end}}
-	out, err := srv.({{$.ServiceType}}Server).{{.Name}}(ctx, &in)
-	if err != nil {
-		return nil, err
-	}
-	return out{{.ResponseBody}}, nil
-}
-{{end}}
-
-var _HTTP_{{.ServiceType}}_serviceDesc = http1.ServiceDesc{
-	ServiceName: "{{.ServiceName}}",
-	HandlerType: (*{{.ServiceType}}HTTPServer)(nil),
-	Methods: []http1.MethodDesc{
-{{range .Methods}}
-		{
-			Path:    "{{.Path}}",
-			Method:  "{{.Method}}",
-			Handler: _HTTP_{{$.ServiceType}}_{{.Name}}_{{.Num}},
-		},
-{{end}}
-	},
-	Metadata: "{{.Metadata}}",
 }
 `
 
