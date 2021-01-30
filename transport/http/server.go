@@ -4,7 +4,9 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"time"
 
+	pb "github.com/go-kratos/kratos/v2/api/kratos/config/http"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/gorilla/mux"
@@ -28,6 +30,7 @@ type ServerOption func(*serverOptions)
 type serverOptions struct {
 	network         string
 	address         string
+	timeout         time.Duration
 	middleware      middleware.Middleware
 	requestDecoder  DecodeRequestFunc
 	responseEncoder EncodeResponseFunc
@@ -76,6 +79,17 @@ func ErrorEncoder(fn EncodeErrorFunc) ServerOption {
 	}
 }
 
+// Apply apply server config.
+func Apply(c *pb.ServerConfig) ServerOption {
+	return func(s *serverOptions) {
+		s.network = c.Network
+		s.address = c.Address
+		if c.Timeout != nil {
+			s.timeout = c.Timeout.AsDuration()
+		}
+	}
+}
+
 // Server is a HTTP server wrapper.
 type Server struct {
 	*http.Server
@@ -88,6 +102,7 @@ func NewServer(opts ...ServerOption) *Server {
 	options := serverOptions{
 		network:         "tcp",
 		address:         ":8000",
+		timeout:         500 * time.Millisecond,
 		requestDecoder:  DefaultRequestDecoder,
 		responseEncoder: DefaultResponseEncoder,
 		errorEncoder:    DefaultErrorEncoder,
@@ -147,7 +162,9 @@ func (s *Server) Invoke(ctx context.Context, req interface{}, h middleware.Handl
 
 // ServeHTTP should write reply headers and data to the ResponseWriter and then return.
 func (s *Server) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	ctx := transport.NewContext(req.Context(), transport.Transport{Kind: "HTTP"})
+	ctx, cancel := context.WithTimeout(req.Context(), s.opts.timeout)
+	defer cancel()
+	ctx = transport.NewContext(ctx, transport.Transport{Kind: "HTTP"})
 	ctx = NewContext(ctx, ServerInfo{Request: req, Response: res})
 	s.router.ServeHTTP(res, req.WithContext(ctx))
 }

@@ -36,8 +36,8 @@ func main() {
 		panic(err)
 	}
 
-	// srvhttp.Apply(hc)
-	// srvgrpc.Apply(hc)
+	// http.Apply(hc)
+	// grpc.Apply(gc)
 
 	log.Printf("http: %s\n", hc.String())
 	log.Printf("grpc: %s\n", gc.String())
