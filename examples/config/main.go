@@ -26,8 +26,8 @@ func main() {
 	}
 
 	var (
-		hc httpconf.ServerConfig
-		gc grpcconf.ServerConfig
+		hc httpconf.Server
+		gc grpcconf.Server
 	)
 	if err := conf.Value("server.http").Scan(&hc); err != nil {
 		panic(err)
@@ -36,17 +36,17 @@ func main() {
 		panic(err)
 	}
 
-	// http.Apply(hc)
-	// grpc.Apply(gc)
-
-	log.Printf("http: %s\n", hc.String())
-	log.Printf("grpc: %s\n", gc.String())
-
 	if err := conf.Watch("service.name", func(key string, value config.Value) {
 		log.Printf("config changed: %s = %v\n", key, value)
 	}); err != nil {
 		panic(err)
 	}
+
+	log.Printf("http: %s\n", hc.String())
+	log.Printf("grpc: %s\n", gc.String())
+
+	// http.Apply(hc)
+	// grpc.Apply(gc)
 
 	<-make(chan struct{})
 }
