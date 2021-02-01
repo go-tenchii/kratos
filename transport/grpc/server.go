@@ -61,8 +61,12 @@ func Options(opts ...grpc.ServerOption) ServerOption {
 // Apply apply server config.
 func Apply(c *config.Server) ServerOption {
 	return func(o *serverOptions) {
-		o.network = c.Network
-		o.address = c.Address
+		if c.Network != "" {
+			o.network = c.Network
+		}
+		if c.Address != "" {
+			o.address = c.Address
+		}
 		if c.Timeout != nil {
 			o.timeout = c.Timeout.AsDuration()
 		}

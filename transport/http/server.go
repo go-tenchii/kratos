@@ -82,8 +82,12 @@ func ErrorEncoder(fn EncodeErrorFunc) ServerOption {
 // Apply apply server config.
 func Apply(c *config.Server) ServerOption {
 	return func(s *serverOptions) {
-		s.network = c.Network
-		s.address = c.Address
+		if c.Network != "" {
+			s.network = c.Network
+		}
+		if c.Address != "" {
+			s.address = c.Address
+		}
 		if c.Timeout != nil {
 			s.timeout = c.Timeout.AsDuration()
 		}
