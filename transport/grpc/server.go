@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	config "github.com/go-kratos/kratos/v2/api/kratos/config/http"
+	config "github.com/go-kratos/kratos/v2/api/kratos/config/grpc"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 
