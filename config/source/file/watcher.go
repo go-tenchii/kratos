@@ -26,12 +26,19 @@ func (w *watcher) Next() ([]*source.KeyValue, error) {
 	select {
 	case event := <-w.fw.Events:
 		if event.Op == fsnotify.Rename {
-			_, err := os.Stat(event.Name)
-			if err == nil || os.IsExist(err) {
+			if _, err := os.Stat(event.Name); err == nil || os.IsExist(err) {
 				w.fw.Add(event.Name)
 			}
 		}
-		kv, err := w.f.loadFile(filepath.Join(w.f.path, event.Name))
+		fi, err := os.Stat(w.f.path)
+		if err != nil {
+			return nil, err
+		}
+		path := w.f.path
+		if fi.IsDir() {
+			path = filepath.Join(w.f.path, event.Name)
+		}
+		kv, err := w.f.loadFile(path)
 		if err != nil {
 			return nil, err
 		}

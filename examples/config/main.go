@@ -41,4 +41,12 @@ func main() {
 
 	log.Printf("http: %s\n", hc.String())
 	log.Printf("grpc: %s\n", gc.String())
+
+	if err := conf.Watch("service.name", func(key string, value config.Value) {
+		log.Printf("config changed: %s = %v\n", key, value)
+	}); err != nil {
+		panic(err)
+	}
+
+	<-make(chan struct{})
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"reflect"
 	"sync"
 	"time"
 
@@ -58,7 +59,7 @@ func (c *config) watch(r *resolver, w source.Watcher) {
 				k := key.(string)
 				v := value.(Value)
 				for _, r := range c.resolvers {
-					if n := r.Resolve(k); n != nil && n.Load() != v.Load() {
+					if n := r.Resolve(k); n != nil && !reflect.DeepEqual(n.Load(), v.Load()) {
 						v.Store(n.Load())
 						if o, ok := c.observers.Load(k); ok {
 							o.(Observer)(k, v)
