@@ -12,6 +12,17 @@ import (
 // Name is the name registered for the json codec.
 const Name = "json"
 
+var (
+	// MarshalOptions is a configurable JSON format marshaler.
+	MarshalOptions = protojson.MarshalOptions{
+		EmitUnpopulated: true,
+	}
+	// UnmarshalOptions is a configurable JSON format parser.
+	UnmarshalOptions = protojson.UnmarshalOptions{
+		DiscardUnknown: true,
+	}
+)
+
 func init() {
 	encoding.RegisterCodec(codec{})
 }
@@ -22,7 +33,7 @@ type codec struct{}
 func (codec) Marshal(v interface{}) ([]byte, error) {
 	m, ok := v.(proto.Message)
 	if ok {
-		return protojson.Marshal(m)
+		return MarshalOptions.Marshal(m)
 	}
 	return json.Marshal(v)
 }
@@ -30,7 +41,7 @@ func (codec) Marshal(v interface{}) ([]byte, error) {
 func (codec) Unmarshal(data []byte, v interface{}) error {
 	m, ok := v.(proto.Message)
 	if ok {
-		return protojson.Unmarshal(data, m)
+		return UnmarshalOptions.Unmarshal(data, m)
 	}
 	return json.Unmarshal(data, v)
 }
