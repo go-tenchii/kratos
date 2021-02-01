@@ -29,10 +29,10 @@ func main() {
 		hc httpconf.Server
 		gc grpcconf.Server
 	)
-	if err := conf.Value("server.http").Scan(&hc); err != nil {
+	if err := conf.Value("http.server").Scan(&hc); err != nil {
 		panic(err)
 	}
-	if err := conf.Value("server.grpc").Scan(&gc); err != nil {
+	if err := conf.Value("grpc.server").Scan(&gc); err != nil {
 		panic(err)
 	}
 
