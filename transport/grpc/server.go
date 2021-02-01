@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	pb "github.com/go-kratos/kratos/v2/api/kratos/config/http"
+	config "github.com/go-kratos/kratos/v2/api/kratos/config/http"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 
@@ -59,7 +59,7 @@ func Options(opts ...grpc.ServerOption) ServerOption {
 }
 
 // Apply apply server config.
-func Apply(c *pb.ServerConfig) ServerOption {
+func Apply(c *config.Server) ServerOption {
 	return func(o *serverOptions) {
 		o.network = c.Network
 		o.address = c.Address

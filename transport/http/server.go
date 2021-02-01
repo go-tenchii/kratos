@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	pb "github.com/go-kratos/kratos/v2/api/kratos/config/http"
+	config "github.com/go-kratos/kratos/v2/api/kratos/config/http"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/gorilla/mux"
@@ -80,7 +80,7 @@ func ErrorEncoder(fn EncodeErrorFunc) ServerOption {
 }
 
 // Apply apply server config.
-func Apply(c *pb.ServerConfig) ServerOption {
+func Apply(c *config.Server) ServerOption {
 	return func(s *serverOptions) {
 		s.network = c.Network
 		s.address = c.Address

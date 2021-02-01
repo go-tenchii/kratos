@@ -6,7 +6,14 @@ import "google/protobuf/duration.proto";
 
 option go_package = "github.com/go-kratos/kratos/v2/api/kratos/config/http;http";
 
-message ServerConfig {
+message Client {
+  google.protobuf.Duration timeout = 1;
+  google.protobuf.Duration keepalive = 2;
+  int32 maxIdleConns = 3;
+  string userAgent = 4;
+}
+
+message Server {
   string network = 1;
   string address = 2;
   google.protobuf.Duration timeout = 3;

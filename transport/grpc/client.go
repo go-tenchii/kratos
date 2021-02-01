@@ -4,7 +4,9 @@ import (
 	"context"
 	"time"
 
+	config "github.com/go-kratos/kratos/v2/api/kratos/config/grpc"
 	"github.com/go-kratos/kratos/v2/middleware"
+
 	"google.golang.org/grpc"
 )
 
@@ -43,6 +45,16 @@ func WithMiddleware(m middleware.Middleware) ClientOption {
 func WithOptions(opts ...grpc.DialOption) ClientOption {
 	return func(o *clientOptions) {
 		o.grpcOpts = opts
+	}
+}
+
+// WithApply apply client config.
+func WithApply(c *config.Client) ClientOption {
+	return func(o *clientOptions) {
+		if c.Timeout != nil {
+			o.timeout = c.Timeout.AsDuration()
+		}
+		o.insecure = c.Insecure
 	}
 }
 

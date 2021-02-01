@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	config "github.com/go-kratos/kratos/v2/api/kratos/config/http"
 	"github.com/go-kratos/kratos/v2/encoding"
 	"github.com/go-kratos/kratos/v2/errors"
 )
@@ -16,29 +17,47 @@ type ClientOption func(*Client)
 
 // WithTimeout with client request timeout.
 func WithTimeout(d time.Duration) ClientOption {
-	return func(c *Client) {
-		c.timeout = d
+	return func(o *Client) {
+		o.timeout = d
 	}
 }
 
 // WithKeepAlive with client keepavlie.
 func WithKeepAlive(d time.Duration) ClientOption {
-	return func(c *Client) {
-		c.keepAlive = d
+	return func(o *Client) {
+		o.keepAlive = d
 	}
 }
 
 // WithMaxIdleConns with client max idle conns.
 func WithMaxIdleConns(n int) ClientOption {
-	return func(c *Client) {
-		c.maxIdleConns = n
+	return func(o *Client) {
+		o.maxIdleConns = n
 	}
 }
 
 // WithUserAgent with client user agent.
 func WithUserAgent(ua string) ClientOption {
-	return func(c *Client) {
-		c.userAgent = ua
+	return func(o *Client) {
+		o.userAgent = ua
+	}
+}
+
+// WithApply apply client config.
+func WithApply(c *config.Client) ClientOption {
+	return func(o *Client) {
+		if c.Timeout != nil {
+			o.timeout = c.Timeout.AsDuration()
+		}
+		if c.Keepalive != nil {
+			o.keepAlive = c.Keepalive.AsDuration()
+		}
+		if c.MaxIdleConns > 0 {
+			o.maxIdleConns = int(c.MaxIdleConns)
+		}
+		if c.UserAgent != "" {
+			o.userAgent = c.UserAgent
+		}
 	}
 }
 
