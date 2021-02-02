@@ -5,18 +5,18 @@ type Logger interface {
 	Print(kvpair ...interface{})
 }
 
-type printer struct {
+type logger struct {
 	log    Logger
 	kvpair []interface{}
 }
 
-func (l *printer) Print(kvpair ...interface{}) {
+func (l *logger) Print(kvpair ...interface{}) {
 	l.log.Print(append(kvpair, l.kvpair...)...)
 }
 
 // With with logger kv pairs.
 func With(log Logger, kvpair ...interface{}) Logger {
-	return &printer{log: log, kvpair: kvpair}
+	return &logger{log: log, kvpair: kvpair}
 }
 
 // Debug returns a debug logger.

@@ -18,11 +18,3 @@ func TestHelperLevel(t *testing.T) {
 	log.Warn("test warn")
 	log.Error("test error")
 }
-
-func TestHelperVerbose(t *testing.T) {
-	log := NewHelper("test", &testLogger{t})
-	log.V(1).Infow("log", "test debug")
-	log.V(5).Infow("log", "test info")
-	log.V(10).Infow("log", "test warn")
-	log.V(15).Infow("log", "test error")
-}

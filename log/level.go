@@ -1,7 +1,5 @@
 package log
 
-import "strings"
-
 // Level is a logger level.
 type Level int8
 
@@ -38,21 +36,5 @@ func (l Level) String() string {
 		return "ERROR"
 	default:
 		return ""
-	}
-}
-
-// GetLevel converts a level string to logger level.
-func GetLevel(name string) Level {
-	switch strings.ToUpper(name) {
-	case "DEBUG":
-		return LevelDebug
-	case "INFO":
-		return LevelInfo
-	case "WARN":
-		return LevelWarn
-	case "ERROR":
-		return LevelError
-	default:
-		return LevelInfo
 	}
 }

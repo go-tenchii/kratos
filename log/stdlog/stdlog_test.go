@@ -33,18 +33,6 @@ func BenchmarkLoggerPrint(b *testing.B) {
 	})
 }
 
-func BenchmarkLoggerHelperV(b *testing.B) {
-	b.SetParallelism(100)
-	logger := NewLogger(Writer(Discard(0)))
-	defer logger.Close()
-	h := log.NewHelper("test", logger)
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			h.V(10).Infow("log", "test")
-		}
-	})
-}
-
 func BenchmarkLoggerHelperInfo(b *testing.B) {
 	b.SetParallelism(100)
 	logger := NewLogger(Writer(Discard(0)))
