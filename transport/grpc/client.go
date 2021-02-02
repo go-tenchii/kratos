@@ -34,6 +34,13 @@ func WithInsecure() ClientOption {
 	}
 }
 
+// WithUnaryInterceptor with unary client interceptor.
+func WithUnaryInterceptor(in grpc.UnaryClientInterceptor) ClientOption {
+	return func(c *clientOptions) {
+		c.interceptor = in
+	}
+}
+
 // WithMiddleware with server middleware.
 func WithMiddleware(m middleware.Middleware) ClientOption {
 	return func(o *clientOptions) {
@@ -59,11 +66,12 @@ func WithApply(c *config.Client) ClientOption {
 }
 
 type clientOptions struct {
-	ctx        context.Context
-	insecure   bool
-	timeout    time.Duration
-	middleware middleware.Middleware
-	grpcOpts   []grpc.DialOption
+	ctx         context.Context
+	insecure    bool
+	timeout     time.Duration
+	interceptor grpc.UnaryClientInterceptor
+	middleware  middleware.Middleware
+	grpcOpts    []grpc.DialOption
 }
 
 // NewClient new a grpc transport client.
@@ -78,7 +86,10 @@ func NewClient(target string, opts ...ClientOption) (*grpc.ClientConn, error) {
 	}
 	var grpcOpts = []grpc.DialOption{
 		grpc.WithTimeout(options.timeout),
-		grpc.WithUnaryInterceptor(UnaryClientInterceptor(options.middleware)),
+		grpc.WithChainUnaryInterceptor(
+			options.interceptor,
+			UnaryClientInterceptor(options.middleware),
+		),
 	}
 	if options.insecure {
 		grpcOpts = append(grpcOpts, grpc.WithInsecure())

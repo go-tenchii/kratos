@@ -16,11 +16,12 @@ import (
 type ServerOption func(o *serverOptions)
 
 type serverOptions struct {
-	network    string
-	address    string
-	timeout    time.Duration
-	middleware middleware.Middleware
-	grpcOpts   []grpc.ServerOption
+	network     string
+	address     string
+	timeout     time.Duration
+	interceptor grpc.UnaryServerInterceptor
+	middleware  middleware.Middleware
+	grpcOpts    []grpc.ServerOption
 }
 
 // Network with server network.
@@ -41,6 +42,13 @@ func Address(addr string) ServerOption {
 func Timeout(timeout time.Duration) ServerOption {
 	return func(o *serverOptions) {
 		o.timeout = timeout
+	}
+}
+
+// UnaryInterceptor with server interceptor.
+func UnaryInterceptor(in grpc.UnaryServerInterceptor) ServerOption {
+	return func(o *serverOptions) {
+		o.interceptor = in
 	}
 }
 
@@ -91,6 +99,7 @@ func NewServer(opts ...ServerOption) *Server {
 	}
 	var grpcOpts = []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
+			options.interceptor,
 			UnaryServerInterceptor(options.middleware),
 			UnaryTimeoutInterceptor(options.timeout),
 		),
