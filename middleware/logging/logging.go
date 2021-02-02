@@ -13,8 +13,7 @@ import (
 
 // GRPCServer is a gRPC logging middleware.
 func GRPCServer(logger log.Logger) middleware.Middleware {
-	infoLog := log.Info(logger)
-	errLog := log.Error(logger)
+	log := log.NewHelper("grpc", logger)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			var (
@@ -28,9 +27,8 @@ func GRPCServer(logger log.Logger) middleware.Middleware {
 			}
 			reply, err := handler(ctx, req)
 			if err != nil {
-				errLog.Print(
+				log.Errorw(
 					"kind", "server",
-					"module", "grpc",
 					"grpc.service", service,
 					"grpc.method", method,
 					"grpc.code", errors.Code(err),
@@ -38,9 +36,8 @@ func GRPCServer(logger log.Logger) middleware.Middleware {
 				)
 				return nil, err
 			}
-			infoLog.Print(
+			log.Infow(
 				"kind", "server",
-				"module", "grpc",
 				"grpc.service", service,
 				"grpc.method", method,
 				"grpc.code", 0,
@@ -52,8 +49,7 @@ func GRPCServer(logger log.Logger) middleware.Middleware {
 
 // HTTPServer is a gRPC logging middleware.
 func HTTPServer(logger log.Logger) middleware.Middleware {
-	infoLog := log.Info(logger)
-	errLog := log.Error(logger)
+	log := log.NewHelper("http", logger)
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (interface{}, error) {
 			var (
@@ -67,9 +63,8 @@ func HTTPServer(logger log.Logger) middleware.Middleware {
 			}
 			reply, err := handler(ctx, req)
 			if err != nil {
-				errLog.Print(
+				log.Errorw(
 					"kind", "server",
-					"module", "grpc",
 					"http.path", path,
 					"http.method", method,
 					"http.code", errors.Code(err),
@@ -77,9 +72,8 @@ func HTTPServer(logger log.Logger) middleware.Middleware {
 				)
 				return nil, err
 			}
-			infoLog.Print(
+			log.Infow(
 				"kind", "server",
-				"module", "grpc",
 				"http.path", path,
 				"http.method", method,
 				"http.code", 0,
