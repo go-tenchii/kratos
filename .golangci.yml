@@ -11,7 +11,7 @@ linters-settings:
   gofmt:
     simplify: true
   goimports:
-    local-prefixes: "github.com/go-kratos/kratos" # 格式化代码时，本地代码单独块
+    local-prefixes: "github.com/go-tenchii/kratos" # 格式化代码时，本地代码单独块
   gocritic:
     enabled-tags:
       - diagnostic

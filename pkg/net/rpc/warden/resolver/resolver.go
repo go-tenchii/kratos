@@ -7,10 +7,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-kratos/kratos/pkg/conf/env"
-	"github.com/go-kratos/kratos/pkg/log"
-	"github.com/go-kratos/kratos/pkg/naming"
-	wmeta "github.com/go-kratos/kratos/pkg/net/rpc/warden/internal/metadata"
+	"github.com/go-tenchii/kratos/pkg/conf/env"
+	"github.com/go-tenchii/kratos/pkg/log"
+	"github.com/go-tenchii/kratos/pkg/naming"
+	wmeta "github.com/go-tenchii/kratos/pkg/net/rpc/warden/internal/metadata"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/resolver"

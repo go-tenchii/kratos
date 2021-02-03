@@ -1,8 +1,8 @@
 package mongodb
 
 import (
-	"github.com/go-kratos/kratos/pkg/net/netutil/breaker"
-	"github.com/go-kratos/kratos/pkg/time"
+	"github.com/go-tenchii/kratos/pkg/net/netutil/breaker"
+	"github.com/go-tenchii/kratos/pkg/time"
 )
 
 type Config struct {

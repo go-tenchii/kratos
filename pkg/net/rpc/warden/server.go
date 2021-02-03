@@ -10,16 +10,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kratos/kratos/pkg/conf/dsn"
-	"github.com/go-kratos/kratos/pkg/log"
-	nmd "github.com/go-kratos/kratos/pkg/net/metadata"
-	"github.com/go-kratos/kratos/pkg/net/rpc/warden/ratelimiter"
-	"github.com/go-kratos/kratos/pkg/net/trace"
-	xtime "github.com/go-kratos/kratos/pkg/time"
+	"github.com/go-tenchii/kratos/pkg/conf/dsn"
+	"github.com/go-tenchii/kratos/pkg/log"
+	nmd "github.com/go-tenchii/kratos/pkg/net/metadata"
+	"github.com/go-tenchii/kratos/pkg/net/rpc/warden/ratelimiter"
+	"github.com/go-tenchii/kratos/pkg/net/trace"
+	xtime "github.com/go-tenchii/kratos/pkg/time"
 
 	//this package is for json format response
-	_ "github.com/go-kratos/kratos/pkg/net/rpc/warden/internal/encoding/json"
-	"github.com/go-kratos/kratos/pkg/net/rpc/warden/internal/status"
+	_ "github.com/go-tenchii/kratos/pkg/net/rpc/warden/internal/encoding/json"
+	"github.com/go-tenchii/kratos/pkg/net/rpc/warden/internal/status"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-kratos/kratos/pkg/conf/env"
-	"github.com/go-kratos/kratos/pkg/naming"
-	"github.com/go-kratos/kratos/pkg/net/rpc/warden/resolver"
+	"github.com/go-tenchii/kratos/pkg/conf/env"
+	"github.com/go-tenchii/kratos/pkg/naming"
+	"github.com/go-tenchii/kratos/pkg/net/rpc/warden/resolver"
 )
 
 const (

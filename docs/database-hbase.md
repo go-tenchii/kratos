@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
     
-    "github.com/go-kratos/kratos/pkg/database/hbase"
+    "github.com/go-tenchii/kratos/pkg/database/hbase"
 )
 
 func main() {

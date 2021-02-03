@@ -5,12 +5,12 @@
 创建kratos项目，可以使用`kratos`工具，如下：
 
 ```shell
-go get -u github.com/go-kratos/kratos/tool/kratos
+go get -u github.com/go-tenchii/kratos/tool/kratos
 cd $GOPATH/src
 kratos new kratos-demo
 ```
 
-根据提示可以快速创建项目，如[kratos-demo](https://github.com/go-kratos/kratos-demo)就是通过工具创建生成。目录结构如下：
+根据提示可以快速创建项目，如[kratos-demo](https://github.com/go-tenchii/kratos-demo)就是通过工具创建生成。目录结构如下：
 
 ```
 ├── CHANGELOG.md 

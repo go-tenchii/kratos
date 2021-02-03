@@ -4,7 +4,7 @@
 package api
 
 import (
-	"github.com/go-kratos/kratos/pkg/ecode"
+	"github.com/go-tenchii/kratos/pkg/ecode"
 )
 
 // to suppressed 'imported but not used warning'

@@ -12,7 +12,7 @@ import (
 
 	"github.com/philchia/agollo/v4"
 
-	"github.com/go-kratos/kratos/pkg/conf/paladin"
+	"github.com/go-tenchii/kratos/pkg/conf/paladin"
 )
 
 var (

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-kratos/kratos/pkg/net/trace"
+	"github.com/go-tenchii/kratos/pkg/net/trace"
 )
 
 func TestJaegerReporter(t *testing.T) {

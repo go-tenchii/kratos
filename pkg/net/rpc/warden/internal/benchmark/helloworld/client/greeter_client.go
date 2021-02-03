@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/go-kratos/kratos/pkg/net/netutil/breaker"
-	"github.com/go-kratos/kratos/pkg/net/rpc/warden"
-	pb "github.com/go-kratos/kratos/pkg/net/rpc/warden/internal/proto/testproto"
-	xtime "github.com/go-kratos/kratos/pkg/time"
+	"github.com/go-tenchii/kratos/pkg/net/netutil/breaker"
+	"github.com/go-tenchii/kratos/pkg/net/rpc/warden"
+	pb "github.com/go-tenchii/kratos/pkg/net/rpc/warden/internal/proto/testproto"
+	xtime "github.com/go-tenchii/kratos/pkg/time"
 )
 
 var (

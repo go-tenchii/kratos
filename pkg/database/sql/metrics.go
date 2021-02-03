@@ -1,6 +1,6 @@
 package sql
 
-import "github.com/go-kratos/kratos/pkg/stat/metric"
+import "github.com/go-tenchii/kratos/pkg/stat/metric"
 
 const namespace = "mysql_client"
 

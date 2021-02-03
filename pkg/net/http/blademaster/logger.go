@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-kratos/kratos/pkg/ecode"
-	"github.com/go-kratos/kratos/pkg/log"
-	"github.com/go-kratos/kratos/pkg/net/metadata"
+	"github.com/go-tenchii/kratos/pkg/ecode"
+	"github.com/go-tenchii/kratos/pkg/log"
+	"github.com/go-tenchii/kratos/pkg/net/metadata"
 )
 
 // Logger is logger  middleware
