@@ -15,16 +15,16 @@ import (
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"github.com/pkg/errors"
 
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/gen"
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/naming"
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/typemap"
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/utils"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/gen"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/naming"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/typemap"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/utils"
 )
 
 const Version = "v0.1"
 
-var GoModuleImportPath = "github.com/go-kratos/kratos"
-var GoModuleDirName = "github.com/go-kratos/kratos"
+var GoModuleImportPath = "github.com/go-tenchii/kratos"
+var GoModuleDirName = "github.com/go-tenchii/kratos"
 
 type Base struct {
 	Reg *typemap.Registry

@@ -4,7 +4,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/extensions/gogoproto"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/extensions/gogoproto"
 )
 
 func GetMoreTags(field *descriptor.FieldDescriptorProto) *string {

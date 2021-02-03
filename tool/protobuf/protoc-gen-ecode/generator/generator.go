@@ -8,8 +8,8 @@ import (
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/generator"
-	"github.com/go-kratos/kratos/tool/protobuf/pkg/naming"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/generator"
+	"github.com/go-tenchii/kratos/tool/protobuf/pkg/naming"
 )
 
 type ecode struct {
@@ -95,7 +95,7 @@ func (t *ecode) generateFileHeader(file *descriptor.FileDescriptorProto, pkgName
 
 func (t *ecode) generateImports(file *descriptor.FileDescriptorProto) {
 	t.P(`import (`)
-	t.P(`	"github.com/go-kratos/kratos/pkg/ecode"`)
+	t.P(`	"github.com/go-tenchii/kratos/pkg/ecode"`)
 	t.P(`)`)
 	t.P()
 	t.P(`// to suppressed 'imported but not used warning'`)
