@@ -22,7 +22,7 @@ func (c *Client) request(method string, route string, body []byte) ([]byte, erro
 		return nil, err
 	}
 
-	mi := c.getMchInfoFunc()
+	mi := c.getMchInfoFunc(c)
 	if mi == nil {
 		return nil, errors.New("mchinfo获取失败")
 	}
@@ -65,16 +65,16 @@ func (c *Client) request(method string, route string, body []byte) ([]byte, erro
 	}
 	log.Info("nonceStr: %s, request_id: %s, route: %s, rsp: %s", nonceStr, resp.Header.Get("Request-Id"), route, string(rspBody))
 
-	wpTimestamp := resp.Header.Get("Wechatpay-Timestamp")
-	wpNonceStr := resp.Header.Get("Wechatpay-Nonce")
-	wpSign := resp.Header.Get("Wechatpay-Signature")
-	if wpSign == "" || wpTimestamp == "" || wpNonceStr == "" {
-		return nil, errors.New("伪造或被篡改的应答")
-	}
-
-	if err = VerifySign(string(rspBody), wpTimestamp, wpNonceStr, wpSign, mi.PublicKey); err != nil {
-		return nil, errors.New("签名验证错误")
-	}
+	//wpTimestamp := resp.Header.Get("Wechatpay-Timestamp")
+	//wpNonceStr := resp.Header.Get("Wechatpay-Nonce")
+	//wpSign := resp.Header.Get("Wechatpay-Signature")
+	//if wpSign == "" || wpTimestamp == "" || wpNonceStr == "" {
+	//	return nil, errors.New("伪造或被篡改的应答")
+	//}
+	//
+	//if err = VerifySign(string(rspBody), wpTimestamp, wpNonceStr, wpSign, mi.PublicKey); err != nil {
+	//	return nil, errors.New("签名验证错误")
+	//}
 
 	return rspBody, nil
 }

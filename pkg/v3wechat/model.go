@@ -25,12 +25,11 @@ func (e *RequestErr) Error() string {
 
 type SendCouponStockReq struct {
 	Appid             string `json:"appid"`
-	CouponMinimum     uint64 `json:"coupon_minimum"`
-	CouponValue       uint64 `json:"coupon_value"`
+	CouponMinimum     uint64 `json:"coupon_minimum,omitempty"`
+	CouponValue       uint64 `json:"coupon_value,omitempty"`
 	OutRequestNo      string `json:"out_request_no"`
 	StockCreatorMchid string `json:"stock_creator_mchid"`
 	StockId           string `json:"stock_id"`
-	Openid            string `json:"openid"`
 }
 
 type SendCouponStockRsp struct {
@@ -38,9 +37,7 @@ type SendCouponStockRsp struct {
 }
 
 type QueryUserCouponReq struct {
-	Appid    string `json:"appid" validate:"required"`
-	CouponId string `json:"coupon_id" validate:"required"`
-	Openid   string `json:"openid" validate:"required"`
+
 }
 
 type QueryUserCouponRsp struct {

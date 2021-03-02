@@ -32,7 +32,7 @@ func VerifySign(body, timestamp, nonceStr, sign, publicKey string) (err error)  
 	bf := bytes.Buffer{}
 	bf.WriteString(timestamp + "\n")
 	bf.WriteString(nonceStr + "\n")
-	bf.WriteString(body)
+	bf.WriteString(body+ "\n")
 	return RsaVerySignWithSHA256Base64(bf.String(), sign, publicKey)
 }
 

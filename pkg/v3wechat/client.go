@@ -2,7 +2,7 @@ package v3wechat
 
 type Option func(c *Client)
 
-func GetMchInfoOptions(f func()*MchInfo) Option {
+func GetMchInfoOptions(f func(c *Client)*MchInfo) Option {
 	return func(c *Client) {
 		c.getMchInfoFunc = f
 	}
@@ -11,7 +11,7 @@ func GetMchInfoOptions(f func()*MchInfo) Option {
 type Client struct {
 	mchId string
 
-	getMchInfoFunc func() *MchInfo
+	getMchInfoFunc func(c *Client) *MchInfo
 }
 
 func NewClient(mchId string, options... Option) *Client{
