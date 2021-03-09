@@ -16,11 +16,10 @@ package redis
 
 import "C"
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	redsyncredis "github.com/go-redsync/redsync/v4/redis"
-	goredislib "github.com/go-redis/redis/v7"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v7"
-	"github.com/stvp/tempredis"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
 	"time"
 
 	xtime "github.com/go-tenchii/kratos/pkg/time"
@@ -45,7 +44,7 @@ type Config struct {
 }
 
 type Redis struct {
-	Client *goredislib.Client
+	Client *redis.Client
 	Rs *redsync.Redsync
 
 	pool redsyncredis.Pool
@@ -53,15 +52,8 @@ type Redis struct {
 }
 
 func NewRedis(c *Config) *Redis {
-	server, err := tempredis.Start(tempredis.Config{})
-	if err != nil {
-		panic(err)
-	}
-	defer server.Term()
-
-	client := goredislib.NewClient(&goredislib.Options{
-		Network: "unix",
-		Addr:    server.Socket(),
+	client := redis.NewClient(&redis.Options{
+		Addr: c.Addr,
 		Password: c.Auth,
 		DB:c.Db,
 		DialTimeout: time.Duration(c.DialTimeout),
