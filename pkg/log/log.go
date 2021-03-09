@@ -331,5 +331,5 @@ func OptimizeFuncCost(t time.Time, funcName string, options ...interface{}) {
 	for _, option := range options {
 		optionTip += " " + fmt.Sprint(option)
 	}
-	Info("optimize_log: funcName: %s, cost: %s ms, --%s", funcName, fmt.Sprint(dis), optionTip)
+	Info("optimize_log: funcName: %s, cost: %s ms, --options %s", funcName, fmt.Sprint(dis), optionTip)
 }
