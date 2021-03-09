@@ -16,7 +16,6 @@ package redis
 
 import "C"
 import (
-	"context"
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	redsyncredis "github.com/go-redsync/redsync/v4/redis"

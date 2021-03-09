@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-tenchii/kratos/pkg/conf/env"
 	"github.com/go-tenchii/kratos/pkg/stat/metric"
@@ -322,4 +323,13 @@ func errIncr(lv Level, source string) {
 	if lv == _errorLevel {
 		metricErrCount.Inc(source)
 	}
+}
+
+func OptimizeFuncCost(t time.Time, funcName string, options ...interface{}) {
+	dis := time.Since(t).Milliseconds()
+	optionTip := ""
+	for _, option := range options {
+		optionTip += " " + fmt.Sprint(option)
+	}
+	Info("optimize_log: funcName: %s, cost: %s ms, --%s", funcName, fmt.Sprint(dis), optionTip)
 }
