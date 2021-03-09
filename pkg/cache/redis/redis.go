@@ -14,10 +14,15 @@
 
 package redis
 
+import "C"
 import (
 	"context"
+	"github.com/go-redis/redis/v8"
+	"github.com/go-redsync/redsync/v4"
+	redsyncredis "github.com/go-redsync/redsync/v4/redis"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
+	"time"
 
-	"github.com/go-tenchii/kratos/pkg/container/pool"
 	xtime "github.com/go-tenchii/kratos/pkg/time"
 )
 
@@ -28,8 +33,6 @@ func (err Error) Error() string { return string(err) }
 
 // Config client settings.
 type Config struct {
-	*pool.Config
-
 	Name         string // redis name, for trace
 	Proto        string
 	Addr         string
@@ -42,38 +45,27 @@ type Config struct {
 }
 
 type Redis struct {
-	pool *Pool
+	Client *redis.Client
+	Rs *redsync.Redsync
+
+	pool redsyncredis.Pool
 	conf *Config
 }
 
-func NewRedis(c *Config, options ...DialOption) *Redis {
+func NewRedis(c *Config) *Redis {
+	client := redis.NewClient(&redis.Options{
+		Addr: c.Addr,
+		Password: c.Auth,
+		DB:c.Db,
+		DialTimeout: time.Duration(c.DialTimeout),
+		WriteTimeout: time.Duration(c.WriteTimeout),
+		ReadTimeout: time.Duration(c.ReadTimeout),
+	})
+	pool := goredis.NewPool(client)
 	return &Redis{
-		pool: NewPool(c, options...),
+		Client: client,
+		pool: pool,
 		conf: c,
-	}
-}
-
-// Do gets a new conn from pool, then execute Do with this conn, finally close this conn.
-// ATTENTION: Don't use this method with transaction command like MULTI etc. Because every Do will close conn automatically, use r.Conn to get a raw conn for this situation.
-func (r *Redis) Do(ctx context.Context, commandName string, args ...interface{}) (reply interface{}, err error) {
-	conn := r.pool.Get(ctx)
-	defer conn.Close()
-	reply, err = conn.Do(commandName, args...)
-	return
-}
-
-// Close closes connection pool
-func (r *Redis) Close() error {
-	return r.pool.Close()
-}
-
-// Conn direct gets a connection
-func (r *Redis) Conn(ctx context.Context) Conn {
-	return r.pool.Get(ctx)
-}
-
-func (r *Redis) Pipeline() (p Pipeliner) {
-	return &pipeliner{
-		pool: r.pool,
+		Rs:redsync.New(pool),
 	}
 }
