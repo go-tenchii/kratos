@@ -3,7 +3,6 @@ package zipkin
 import (
 	"time"
 
-	"github.com/go-tenchii/kratos/pkg/conf/env"
 	"github.com/go-tenchii/kratos/pkg/net/trace"
 	xtime "github.com/go-tenchii/kratos/pkg/time"
 )
@@ -19,12 +18,12 @@ type Config struct {
 }
 
 // Init init trace report.
-func Init(c *Config) {
+func Init(c *Config, appid string) {
 	if c.BatchSize == 0 {
 		c.BatchSize = 100
 	}
 	if c.Timeout == 0 {
 		c.Timeout = xtime.Duration(200 * time.Millisecond)
 	}
-	trace.SetGlobalTracer(trace.NewTracer(env.AppID, newReport(c), c.DisableSample))
+	trace.SetGlobalTracer(trace.NewTracer(appid, newReport(c), c.DisableSample))
 }
