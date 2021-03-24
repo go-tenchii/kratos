@@ -289,6 +289,7 @@ func (c *Context) Render(code int, r render.Render) {
 		c.Status(code)
 	}
 
+
 	if !bodyAllowedForStatus(code) {
 		return
 	}
