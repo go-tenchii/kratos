@@ -17,7 +17,7 @@ func Do(ctx context.Context, dc *http.Client, req *http.Request) (*http.Response
 		if ok, _ := strconv.ParseBool(trace.KratosTraceDebug); ok {
 			opts = append(opts, trace.EnableDebug())
 		}
-		t = trace.New(req.URL.Path, opts...)
+		t = trace.New("external/"+req.URL.Path, opts...)
 	}
 	t.SetTitle(req.URL.Path)
 	t.SetTag(trace.String(trace.TagComponent, _defaultComponentName))
