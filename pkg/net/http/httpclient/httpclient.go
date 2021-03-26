@@ -27,7 +27,7 @@ func Do(ctx context.Context, dc *http.Client, req *http.Request) (*http.Response
 		t = trace.New(req.URL.Path, opts...)
 	}
 
-	t.SetTitle("external/" + req.URL.Path)
+	t.SetTitle("外部服务: " + req.URL.Path)
 	t.SetTag(trace.String(trace.TagComponent, _defaultComponentName))
 	t.SetTag(trace.String(trace.TagHTTPMethod, req.Method))
 	t.SetTag(trace.String(trace.TagHTTPURL, req.URL.String()))
