@@ -41,6 +41,8 @@ type CORSConfig struct {
 	// API specification
 	ExposeHeaders []string
 
+	AllowOriginHosts []string
+
 	// MaxAge indicates how long (in seconds) the results of a preflight request
 	// can be cached
 	MaxAge time.Duration
@@ -56,6 +58,14 @@ type cors struct {
 }
 
 type converter func(string) string
+
+var DefaultCorsConfig = &CORSConfig{
+	AllowMethods:     []string{"GET", "POST"},
+	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+	AllowCredentials: true,
+	AllowOriginHosts: []string{},
+	MaxAge:           time.Duration(0),
+}
 
 // Validate is check configuration of user defined.
 func (c *CORSConfig) Validate() error {
@@ -74,20 +84,18 @@ func (c *CORSConfig) Validate() error {
 }
 
 // CORS returns the location middleware with default configuration.
-func CORS(allowOriginHosts []string) HandlerFunc {
-	config := &CORSConfig{
-		AllowMethods:     []string{"GET", "POST"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
-		AllowCredentials: true,
-		MaxAge:           time.Duration(0),
-		AllowOriginFunc: func(origin string) bool {
-			for _, host := range allowOriginHosts {
-				if strings.HasSuffix(strings.ToLower(origin), host) {
-					return true
-				}
+func CORS(config *CORSConfig) HandlerFunc {
+	if config == nil {
+		config = DefaultCorsConfig
+	}
+
+	config.AllowOriginFunc = func(origin string) bool {
+		for _, host := range config.AllowOriginHosts {
+			if strings.HasSuffix(strings.ToLower(origin), host) {
+				return true
 			}
-			return false
-		},
+		}
+		return false
 	}
 	return newCORS(config)
 }
