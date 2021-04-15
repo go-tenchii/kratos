@@ -259,6 +259,24 @@ func (c *Context) JSON(data interface{}, err error) {
 	})
 }
 
+// JSON serializes the given struct as StringMap into the response body.
+// It also sets the Content-Type as "application/json".
+func (c *Context) StringMap(data map[string]string, err error) {
+	code := http.StatusOK
+	c.Error = err
+	bcode := ecode.Cause(err)
+	// TODO app allow 5xx?
+	/*
+		if bcode.Code() == -500 {
+			code = http.StatusServiceUnavailable
+		}
+	*/
+	writeStatusCode(c.Writer, bcode.Code())
+	c.Render(code, render.StringMap{
+		Data:    data,
+	})
+}
+
 // JSONMap serializes the given map as map JSON into the response body.
 // It also sets the Content-Type as "application/json".
 func (c *Context) JSONMap(data map[string]interface{}, err error) {
