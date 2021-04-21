@@ -23,6 +23,15 @@ func WeChatPaySignMd5WithStringMap(data map[string]string, apikey string) string
 	return strings.ToUpper(sign)
 }
 
+func WeChatPaySignMd5WithString(data string, apikey string) string {
+	context := data
+	context += "key=" + apikey
+	hasher := md5.New()
+	hasher.Write([]byte(context))
+	sign := hex.EncodeToString(hasher.Sum(nil))
+	return strings.ToUpper(sign)
+}
+
 func StringMapJointByDictionaryOrder(data map[string]string) (str string) {
 	str = ""
 	keyArr := []string{}
@@ -56,6 +65,26 @@ func WeChatPaySignHMACSHA256(v interface{}, apikey string) string {
 	key := []byte(apikey)
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(signstr))
+	sha := hex.EncodeToString(h.Sum(nil))
+	return strings.ToUpper(sha)
+}
+
+func WeChatPaySignHMACSHA256ByString(data string, apikey string) string {
+	originalData := data
+	originalData = originalData + "key=" + apikey
+	key := []byte(apikey)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(originalData))
+	sha := hex.EncodeToString(h.Sum(nil))
+	return strings.ToUpper(sha)
+}
+
+func WeChatPaySignHMACSHA256ByMap(data map[string]string, apikey string) string {
+	originalData := StringMapJointByDictionaryOrder(data)
+	originalData = originalData + "key=" + apikey
+	key := []byte(apikey)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(originalData))
 	sha := hex.EncodeToString(h.Sum(nil))
 	return strings.ToUpper(sha)
 }

@@ -1,5 +1,7 @@
 package v2wechat
 
+import "encoding/xml"
+
 type MchInfo struct {
 	MchId string
 	PublicKey string
@@ -76,4 +78,10 @@ type PayNotifyInfo struct {
 	TimeEnd string `xml:"time_end"`
 	TradeType string `xml:"trade_type"`
 	TransactionId string `xml:"transaction_id"`
+}
+
+type PayNotifyRsp struct {
+	xml.Name
+	ReturnCode string `xml:"return_code"`
+	ReturnMsg string `xml:"return_msg,omitempty"`
 }
