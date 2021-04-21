@@ -217,6 +217,12 @@ func DefaultServer(conf *ServerConfig) *Engine {
 	return engine
 }
 
+func DefaultServerNoLogger(conf *ServerConfig) *Engine {
+	engine := NewServer(conf)
+	engine.Use(Recovery(), Trace())
+	return engine
+}
+
 func (engine *Engine) addRoute(method, path string, handlers ...HandlerFunc) {
 	if path[0] != '/' {
 		panic("blademaster: path must begin with '/'")
