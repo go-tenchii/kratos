@@ -82,3 +82,43 @@ type QueryUserCouponGoodsDetail struct {
 	Price          uint64 `json:"price"`
 	DiscountAmount uint64 `json:"discount_amount"`
 }
+
+type PayJsapiReq struct {
+	Appid string `json:"appid"`
+	Mchid string `json:"mchid"`
+	Description string `json:"description"`
+	OutTradeNo string `json:"out_trade_no"`
+	TimeExpire string `json:"time_expire,omitempty"`
+	Attach string `json:"attach,omitempty"`
+	NotifyUrl string `json:"notify_url"`
+	GoodsTag string `json:"goods_tag,omitempty"`
+	Amount PayJsapiAmountInfo `json:"amount"`
+	Payer PayJsapiPayerInfo `json:"payer"`
+}
+
+type PayJsapiRsp struct {
+	PrepayId string `json:"prepay_id"`
+}
+
+type PayJsapiAmountInfo struct {
+	Total int `json:"total"`
+	Currency string `json:"currency,omitempty"`
+}
+
+type PayJsapiPayerInfo struct {
+	Openid string `json:"openid"`
+}
+
+type PayJsapiOutTradeNoRsp struct {
+	Appid string `json:"appid"`
+	Mchid string `json:"mchid"`
+	OutTradeNo string `json:"out_trade_no"`
+	TransactionId string `json:"transaction_id,omitempty"`
+	TradeType string `json:"trade_type,omitempty"`
+	TradeState string `json:"trade_state"`
+	TradeStateDesc string `json:"trade_state_desc"`
+	BankType string `json:"bank_type,omitempty"`
+	Attach string `json:"attach,omitempty"`
+	SuccessTime string `json:"success_time,omitempty"`
+	Payer PayJsapiPayerInfo `json:"payer"`
+}

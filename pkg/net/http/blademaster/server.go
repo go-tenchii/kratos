@@ -217,13 +217,6 @@ func DefaultServer(conf *ServerConfig) *Engine {
 	return engine
 }
 
-// DefaultServer returns an Engine instance with the Recovery and Logger middleware already attached.
-func DefaultServerNoLogger(conf *ServerConfig) *Engine {
-	engine := NewServer(conf)
-	engine.Use(Recovery(), Trace())
-	return engine
-}
-
 func (engine *Engine) addRoute(method, path string, handlers ...HandlerFunc) {
 	if path[0] != '/' {
 		panic("blademaster: path must begin with '/'")

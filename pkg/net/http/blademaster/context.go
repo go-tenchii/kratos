@@ -1,9 +1,7 @@
 package blademaster
 
 import (
-	"bytes"
 	"context"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"strconv"
@@ -58,78 +56,6 @@ type Context struct {
 
 	Params Params
 }
-
-const (
-	// ContentTypeHeaderKey is the header key of "Content-Type".
-	ContentTypeHeaderKey = "Content-Type"
-
-	// LastModifiedHeaderKey is the header key of "Last-Modified".
-	LastModifiedHeaderKey = "Last-Modified"
-	// IfModifiedSinceHeaderKey is the header key of "If-Modified-Since".
-	IfModifiedSinceHeaderKey = "If-Modified-Since"
-	// CacheControlHeaderKey is the header key of "Cache-Control".
-	CacheControlHeaderKey = "Cache-Control"
-	// ETagHeaderKey is the header key of "ETag".
-	ETagHeaderKey = "ETag"
-
-	// ContentDispositionHeaderKey is the header key of "Content-Disposition".
-	ContentDispositionHeaderKey = "Content-Disposition"
-	// ContentLengthHeaderKey is the header key of "Content-Length"
-	ContentLengthHeaderKey = "Content-Length"
-	// ContentEncodingHeaderKey is the header key of "Content-Encoding".
-	ContentEncodingHeaderKey = "Content-Encoding"
-	// GzipHeaderValue is the header value of "gzip".
-	GzipHeaderValue = "gzip"
-	// AcceptEncodingHeaderKey is the header key of "Accept-Encoding".
-	AcceptEncodingHeaderKey = "Accept-Encoding"
-	// VaryHeaderKey is the header key of "Vary".
-	VaryHeaderKey = "Vary"
-)
-
-
-const (
-	// ContentBinaryHeaderValue header value for binary data.
-	ContentBinaryHeaderValue = "application/octet-stream"
-	// ContentWebassemblyHeaderValue header value for web assembly files.
-	ContentWebassemblyHeaderValue = "application/wasm"
-	// ContentHTMLHeaderValue is the  string of text/html response header's content type value.
-	ContentHTMLHeaderValue = "text/html"
-	// ContentJSONHeaderValue header value for JSON data.
-	ContentJSONHeaderValue = "application/json"
-	// ContentJSONProblemHeaderValue header value for JSON API problem error.
-	// Read more at: https://tools.ietf.org/html/rfc7807
-	ContentJSONProblemHeaderValue = "application/problem+json"
-	// ContentXMLProblemHeaderValue header value for XML API problem error.
-	// Read more at: https://tools.ietf.org/html/rfc7807
-	ContentXMLProblemHeaderValue = "application/problem+xml"
-	// ContentJavascriptHeaderValue header value for JSONP & Javascript data.
-	ContentJavascriptHeaderValue = "text/javascript"
-	// ContentTextHeaderValue header value for Text data.
-	ContentTextHeaderValue = "text/plain"
-	// ContentXMLHeaderValue header value for XML data.
-	ContentXMLHeaderValue = "text/xml"
-	// ContentXMLUnreadableHeaderValue obselete header value for XML.
-	ContentXMLUnreadableHeaderValue = "application/xml"
-	// ContentMarkdownHeaderValue custom key/content type, the real is the text/html.
-	ContentMarkdownHeaderValue = "text/markdown"
-	// ContentYAMLHeaderValue header value for YAML data.
-	ContentYAMLHeaderValue = "application/x-yaml"
-	// ContentYAMLTextHeaderValue header value for YAML plain text.
-	ContentYAMLTextHeaderValue = "text/yaml"
-	// ContentProtobufHeaderValue header value for Protobuf messages data.
-	ContentProtobufHeaderValue = "application/x-protobuf"
-	// ContentMsgPackHeaderValue header value for MsgPack data.
-	ContentMsgPackHeaderValue = "application/msgpack"
-	// ContentMsgPack2HeaderValue alternative header value for MsgPack data.
-	ContentMsgPack2HeaderValue = "application/x-msgpack"
-	// ContentFormHeaderValue header value for post form data.
-	ContentFormHeaderValue = "application/x-www-form-urlencoded"
-	// ContentFormMultipartHeaderValue header value for post multipart form data.
-	ContentFormMultipartHeaderValue = "multipart/form-data"
-	// ContentGRPCHeaderValue Content-Type header value for gRPC.
-	ContentGRPCHeaderValue = "application/grpc"
-)
-
 
 /************************************/
 /********** CONTEXT CREATION ********/
@@ -289,7 +215,6 @@ func (c *Context) Render(code int, r render.Render) {
 		c.Status(code)
 	}
 
-
 	if !bodyAllowedForStatus(code) {
 		return
 	}
@@ -330,6 +255,24 @@ func (c *Context) JSON(data interface{}, err error) {
 	c.Render(code, render.JSON{
 		Code:    bcode.Code(),
 		Message: bcode.Message(),
+		Data:    data,
+	})
+}
+
+// JSON serializes the given struct as StringMap into the response body.
+// It also sets the Content-Type as "application/json".
+func (c *Context) StringMap(data map[string]string, err error) {
+	code := http.StatusOK
+	c.Error = err
+	bcode := ecode.Cause(err)
+	// TODO app allow 5xx?
+	/*
+		if bcode.Code() == -500 {
+			code = http.StatusServiceUnavailable
+		}
+	*/
+	writeStatusCode(c.Writer, bcode.Code())
+	c.Render(code, render.StringMap{
 		Data:    data,
 	})
 }
@@ -480,14 +423,4 @@ func (c *Context) RemoteIP() (remoteIP string) {
 	}
 
 	return
-}
-
-func (c *Context) GetBody() ([]byte, error){
-	data, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-	return data, nil
 }

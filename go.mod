@@ -19,9 +19,9 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
-	github.com/go-redis/redis/v8 v8.7.1
-	github.com/go-redsync/redsync/v4 v4.0.4
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-redis/redis/v8 v8.7.1 // indirect
+	github.com/go-redsync/redsync/v4 v4.0.4 // indirect
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/go-zookeeper/zk v1.0.1
 	github.com/gobuffalo/packr/v2 v2.7.1
 	github.com/gogo/protobuf v1.3.1
@@ -33,6 +33,7 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
+	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/montanaflynn/stats v0.5.0
 	github.com/opentracing/opentracing-go v1.1.0
@@ -66,7 +67,6 @@ require (
 	google.golang.org/grpc v1.29.1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.4.0
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )

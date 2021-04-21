@@ -24,7 +24,6 @@ func Logger() HandlerFunc {
 		}
 
 		c.Next()
-		
 
 		err := c.Error
 		cerr := ecode.Cause(err)

@@ -2,9 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/urfave/cli/v2"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
+
+	common "github.com/go-tenchii/kratos/tool/pkg"
+
+	"github.com/urfave/cli/v2"
 )
 
 func runNew(ctx *cli.Context) (err error) {
@@ -21,7 +26,7 @@ func runNew(ctx *cli.Context) (err error) {
 		pwd, _ := os.Getwd()
 		p.path = filepath.Join(pwd, p.Name)
 	}
-	//p.ModPrefix = strings.ReplaceAll(modPath(p.path), "\\", "/")
+	p.ModPrefix = strings.ReplaceAll(modPath(p.path), "\\", "/")
 	// creata a project
 	if err := create(); err != nil {
 		return err
@@ -33,24 +38,24 @@ func runNew(ctx *cli.Context) (err error) {
 	fmt.Println("项目创建成功.")
 	return nil
 }
-//
-//func modPath(modPathp string) string {
-//	dir := filepath.Dir(p)
-//	for {
-//		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-//			content, _ := ioutil.ReadFile(filepath.Join(dir, "go.mod"))
-//			mod := common.RegexpReplace(`module\s+(?P<name>[\S]+)`, string(content), "$name")
-//			name := strings.TrimPrefix(filepath.Dir(p), dir)
-//			name = strings.TrimPrefix(name, string(os.PathSeparator))
-//			if name == "" {
-//				return fmt.Sprintf("%s/", mod)
-//			}
-//			return fmt.Sprintf("%s/%s/", mod, name)
-//		}
-//		parent := filepath.Dir(dir)
-//		if dir == parent {
-//			return ""
-//		}
-//		dir = parent
-//	}
-//}
+
+func modPath(p string) string {
+	dir := filepath.Dir(p)
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			content, _ := ioutil.ReadFile(filepath.Join(dir, "go.mod"))
+			mod := common.RegexpReplace(`module\s+(?P<name>[\S]+)`, string(content), "$name")
+			name := strings.TrimPrefix(filepath.Dir(p), dir)
+			name = strings.TrimPrefix(name, string(os.PathSeparator))
+			if name == "" {
+				return fmt.Sprintf("%s/", mod)
+			}
+			return fmt.Sprintf("%s/%s/", mod, name)
+		}
+		parent := filepath.Dir(dir)
+		if dir == parent {
+			return ""
+		}
+		dir = parent
+	}
+}
