@@ -37,6 +37,9 @@ type UnifiedOrderReq struct {
 	Sign string `xml:"sign"`
 	SignType string `xml:"sign_type,omitempty"`
 	SpbillCreateIp string `xml:"spbill_create_ip"`
+	SubAppid string `xml:"sub_appid,omitempty"`
+	SubMchId string `xml:"sub_mch_id,omitempty"`
+	SubOpenid string `xml:"sub_openid,omitempty"`
 	TimeExpire string `xml:"time_expire,omitempty"`
 	TimeStart string `xml:"time_start,omitempty"`
 	TotalFee int `xml:"total_fee"`
@@ -50,6 +53,8 @@ type OrderQueryReq struct {
 	OutTradeNo    string `xml:"out_trade_no,omitempty"`
 	Sign          string `xml:"sign"`
 	SignType      string `xml:"sign_type"`
+	SubAppid string `xml:"sub_appid,omitempty"`
+	SubMchId string `xml:"sub_mch_id,omitempty"`
 	TransactionId string `xml:"transaction_id,omitempty"`
 }
 

@@ -43,6 +43,9 @@ func StringMapJointByDictionaryOrder(data map[string]string) (str string) {
 	}
 	sort.Strings(keyArr)
 	for _, key := range keyArr {
+		if len(data[key]) == 0 {
+			continue
+		}
 		str += key + "=" + data[key] + "&"
 	}
 	return

@@ -13,6 +13,12 @@ import (
 func (c *Client)UnifiedOrder(reqS *UnifiedOrderReq) (rsp StringMap, err error) {
 	req := StringMap{}
 	req["appid"] = reqS.Appid
+	if len(reqS.SubAppid) > 0 {
+		req["sub_appid"] = reqS.SubAppid
+	}
+	if len(reqS.SubMchId) > 0 {
+		req["sub_mch_id"] = reqS.SubMchId
+	}
 	req["mch_id"] = reqS.MchId
 	req["nonce_str"] = GetRandomString(32)
 	req["body"] = reqS.Body
@@ -23,6 +29,12 @@ func (c *Client)UnifiedOrder(reqS *UnifiedOrderReq) (rsp StringMap, err error) {
 	req["trade_type"] = reqS.TradeType
 	if reqS.Openid != "" {
 		req["openid"] = reqS.Openid
+	}
+	if reqS.SubOpenid != "" {
+		req["sub_openid"] = reqS.SubOpenid
+	}
+	if reqS.Attach != "" {
+		req["attach"] = reqS.Attach
 	}
 	req["time_start"] = reqS.TimeStart
 	req["time_expire"] = reqS.TimeExpire
@@ -60,14 +72,20 @@ func (c *Client)UnifiedOrder(reqS *UnifiedOrderReq) (rsp StringMap, err error) {
 	return
 }
 
-func (c *Client)OrderQuery(appid,outTradeNo string) (rsp StringMap, err error) {
+func (c *Client)OrderQuery(appid,subAppid,subMchId,outTradeNo string) (rsp StringMap, err error) {
 	req := &OrderQueryReq{}
 	req.Appid = appid
 	req.OutTradeNo = outTradeNo
 	req.MchId = c.mchId
+	if len(subAppid) > 0 {
+		req.SubAppid = subAppid
+	}
+	if len(subMchId) > 0 {
+		req.SubMchId = subMchId
+	}
 	req.NonceStr = GetRandomString(32)
 	req.SignType = "HMAC-SHA256"
-	req.Sign = WeChatPaySignHMACSHA256(req, c.getMchInfoFunc(c).ApiKey)
+	req.Sign = WeChatPaySignHMACSHA256(*req, c.getMchInfoFunc(c).ApiKey)
 
 	v, _ := xml.Marshal(req)
 	log.Info("pay", req.OutTradeNo+" send query micro pay req xml: "+string(v))
@@ -98,7 +116,7 @@ func (c *Client)OrderQuery(appid,outTradeNo string) (rsp StringMap, err error) {
 		err = ecode.Error(10001,rsp["err_code_des"])
 		return
 	}
-	if WeChatPaySignMd5WithStringMap(rsp, c.getMchInfoFunc(c).ApiKey) != rsp["sign"] {
+	if WeChatPaySignHMACSHA256ByMap(rsp, c.getMchInfoFunc(c).ApiKey) != rsp["sign"] {
 		err = ecode.Error(10001,"签名错误")
 		return
 	}
