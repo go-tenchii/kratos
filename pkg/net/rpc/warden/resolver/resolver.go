@@ -157,6 +157,5 @@ func (r *Resolver) newAddress(instances []*naming.Instance) {
 		}
 		addrs = append(addrs, addr)
 	}
-	log.Info("resolver: finally get %d instances", len(addrs))
 	r.cc.NewAddress(addrs)
 }
