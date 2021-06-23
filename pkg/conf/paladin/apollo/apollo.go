@@ -51,10 +51,11 @@ func (aw *apolloWatcher) Handle(event paladin.Event) {
 
 // apollo is apollo config client.
 type apollo struct {
-	client   agollo.Client
-	values   *paladin.Map
-	wmu      sync.RWMutex
-	watchers map[*apolloWatcher]struct{}
+	client     agollo.Client
+	values     *paladin.Map
+	wmu        sync.RWMutex
+	watchers   map[*apolloWatcher]struct{}
+	properties string
 }
 
 // Config is apollo config client config.
@@ -63,12 +64,13 @@ type Config struct {
 	Cluster    string   `json:"cluster"`
 	MetaAddr   string   `json:"meta_addr"`
 	Namespaces []string `json:"namespaces"`
+	Properties string   `json:"properties"`
 }
 
 type apolloDriver struct{}
 
 var (
-	confAppID, confCluster, confMetaAddr, confNamespaces string
+	confAppID, confCluster, confMetaAddr, confNamespaces, confProperties string
 )
 
 func init() {
@@ -81,6 +83,8 @@ func addApolloFlags() {
 	flag.StringVar(&confCluster, "apollo.cluster", "", "apollo cluster")
 	flag.StringVar(&confMetaAddr, "apollo.metaaddr", "", "apollo meta server addr, e.g. localhost:8080")
 	flag.StringVar(&confNamespaces, "apollo.namespaces", "", "subscribed apollo namespaces, comma separated, e.g. app.yml,mysql.yml")
+	flag.StringVar(&confProperties, "apollo.properties", "", "use properties, default is application")
+
 }
 
 func buildConfigForApollo() (c *Config, err error) {
@@ -113,11 +117,19 @@ func buildConfigForApollo() (c *Config, err error) {
 		err = errors.New("invalid apollo namespaces, pass it via APOLLO_NAMESPACES=xxx with env or --apollo.namespaces=xxx with flag")
 		return
 	}
+
+	if confProperties == "" {
+		confProperties = "application.properties"
+	} else {
+		confProperties += ".properties"
+	}
+
 	c = &Config{
 		AppID:      confAppID,
 		Cluster:    confCluster,
 		MetaAddr:   confMetaAddr,
 		Namespaces: namespaceNames,
+		Properties: confProperties,
 	}
 	return
 }
@@ -141,7 +153,7 @@ func (ad *apolloDriver) new(conf *Config) (paladin.Client, error) {
 	client := agollo.NewClient(&agollo.Conf{
 		AppID:          conf.AppID,
 		Cluster:        conf.Cluster,
-		MetaAddr: conf.MetaAddr,
+		MetaAddr:       conf.MetaAddr,
 		NameSpaceNames: conf.Namespaces, // these namespaces will be subscribed at init
 	}, agollo.SkipLocalCache())
 	err := client.Start()
@@ -149,9 +161,10 @@ func (ad *apolloDriver) new(conf *Config) (paladin.Client, error) {
 		return nil, err
 	}
 	a := &apollo{
-		client:   client,
-		values:   new(paladin.Map),
-		watchers: make(map[*apolloWatcher]struct{}),
+		client:     client,
+		values:     new(paladin.Map),
+		watchers:   make(map[*apolloWatcher]struct{}),
+		properties: conf.Properties,
 	}
 	raws, err := a.loadValues(conf.Namespaces)
 	if err != nil {
@@ -177,7 +190,7 @@ func (a *apollo) loadValues(keys []string) (values map[string]*paladin.Value, er
 
 // loadValue load value from apollo namespace content to value
 func (a *apollo) loadValue(key string) (*paladin.Value, error) {
-	content := a.client.GetString(key)
+	content := a.client.GetString(key, agollo.WithNamespace(a.properties))
 	return paladin.NewValue(content, content), nil
 }
 
