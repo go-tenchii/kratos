@@ -72,16 +72,18 @@ func (c *Client)UnifiedOrder(reqS *UnifiedOrderReq) (rsp StringMap, err error) {
 	return
 }
 
-func (c *Client)OrderQuery(appid,subAppid,subMchId,outTradeNo string) (rsp StringMap, err error) {
+func (c *Client)OrderQuery(appid,subAppid,mchId,outTradeNo string) (rsp StringMap, err error) {
 	req := &OrderQueryReq{}
 	req.Appid = appid
 	req.OutTradeNo = outTradeNo
-	req.MchId = c.mchId
+	req.MchId = mchId
 	if len(subAppid) > 0 {
 		req.SubAppid = subAppid
 	}
-	if len(subMchId) > 0 {
-		req.SubMchId = subMchId
+	if mchId != "" {
+		req.SubMchId = c.mchId
+	}else{
+		req.MchId = c.mchId
 	}
 	req.NonceStr = GetRandomString(32)
 	req.SignType = "HMAC-SHA256"
