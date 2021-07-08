@@ -10,11 +10,15 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	rand2 "math/rand"
+	"reflect"
+	"strconv"
+	"strings"
 	"time"
 )
 
-func Sign(method string, url string, timestamp string, nonce string, body []byte, key string) (sign string, err error)  {
+func Sign(method string, url string, timestamp string, nonce string, body []byte, key string) (sign string, err error) {
 	sign = ""
 	sign += method + "\n"
 	sign += url + "\n"
@@ -28,11 +32,11 @@ func Sign(method string, url string, timestamp string, nonce string, body []byte
 	return PrivateKeySignSHA256(sign, key)
 }
 
-func VerifySign(body, timestamp, nonceStr, sign, publicKey string) (err error)  {
+func VerifySign(body, timestamp, nonceStr, sign, publicKey string) (err error) {
 	bf := bytes.Buffer{}
 	bf.WriteString(timestamp + "\n")
 	bf.WriteString(nonceStr + "\n")
-	bf.WriteString(body+ "\n")
+	bf.WriteString(body + "\n")
 	return RsaVerySignWithSHA256Base64(bf.String(), sign, publicKey)
 }
 
@@ -96,4 +100,46 @@ func RsaVerySignWithSHA256Base64(originalData, signData string, key string) (err
 	h := crypto.Hash.New(crypto.SHA256)
 	h.Write([]byte(originalData))
 	return rsa.VerifyPKCS1v15(pub, crypto.SHA256, h.Sum(nil), sign)
+}
+
+func Struct2mapJson(v interface{}) map[string]string {
+	datamap := map[string]string{}
+	vt := reflect.TypeOf(v)
+	vv := reflect.ValueOf(v)
+	for i := 0; i < vt.NumField(); i++ {
+		field := vt.Field(i)
+		name := field.Name
+		keytemp := field.Tag.Get("json")
+		keymap := strings.Split(keytemp, ",")
+		key := keymap[0]
+		if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Int {
+			value := reflect.Indirect(vv).FieldByName(name).Int()
+			datamap[key] = strconv.Itoa(int(value))
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Int64 {
+			value := reflect.Indirect(vv).FieldByName(name).Int()
+			datamap[key] = strconv.Itoa(int(value))
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Int32 {
+			value := reflect.Indirect(vv).FieldByName(name).Int()
+			datamap[key] = strconv.Itoa(int(value))
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Float64 {
+			value := reflect.Indirect(vv).FieldByName(name).Float()
+			datamap[key] = fmt.Sprint(value)
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Uint32 {
+			value := reflect.Indirect(vv).FieldByName(name).Uint()
+			datamap[key] = strconv.FormatUint(value, 10)
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Uint64 {
+			value := reflect.Indirect(vv).FieldByName(name).Uint()
+			datamap[key] = strconv.FormatUint(value, 10)
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Array {
+			datamap[key] = strings.Replace(fmt.Sprint(reflect.Indirect(vv).FieldByName(name)), " ", ",", -1)
+		} else if reflect.Indirect(vv).FieldByName(name).Type().Kind() == reflect.Slice {
+			datamap[key] = strings.Replace(fmt.Sprint(reflect.Indirect(vv).FieldByName(name)), " ", ",", -1)
+		} else {
+			value := (reflect.Indirect(vv).FieldByName(name)).String()
+			if value != "" && key != "xml" && key != "sign" {
+				datamap[key] = value
+			}
+		}
+	}
+	return datamap
 }

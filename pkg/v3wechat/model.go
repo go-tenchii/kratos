@@ -3,10 +3,10 @@ package v3wechat
 import "fmt"
 
 type MchInfo struct {
-	MchId string
-	PublicKey string
+	MchId      string
+	PublicKey  string
 	PrivateKey string
-	SerialNo string
+	SerialNo   string
 }
 
 type RequestErr struct {
@@ -37,7 +37,6 @@ type SendCouponStockRsp struct {
 }
 
 type QueryUserCouponReq struct {
-
 }
 
 type QueryUserCouponRsp struct {
@@ -58,7 +57,6 @@ type QueryUserCouponRsp struct {
 	ConsumeInformation      QueryUserCouponConsumeInformation      `json:"consume_information"`
 	GoodsDetail             QueryUserCouponGoodsDetail             `json:"goods_detail"`
 }
-
 
 type QueryUserCouponCutToMessage struct {
 	SinglePriceMax int64 `json:"single_price_max"`
@@ -84,16 +82,16 @@ type QueryUserCouponGoodsDetail struct {
 }
 
 type PayJsapiReq struct {
-	Appid string `json:"appid"`
-	Mchid string `json:"mchid"`
-	Description string `json:"description"`
-	OutTradeNo string `json:"out_trade_no"`
-	TimeExpire string `json:"time_expire,omitempty"`
-	Attach string `json:"attach,omitempty"`
-	NotifyUrl string `json:"notify_url"`
-	GoodsTag string `json:"goods_tag,omitempty"`
-	Amount PayJsapiAmountInfo `json:"amount"`
-	Payer PayJsapiPayerInfo `json:"payer"`
+	Appid       string             `json:"appid"`
+	Mchid       string             `json:"mchid"`
+	Description string             `json:"description"`
+	OutTradeNo  string             `json:"out_trade_no"`
+	TimeExpire  string             `json:"time_expire,omitempty"`
+	Attach      string             `json:"attach,omitempty"`
+	NotifyUrl   string             `json:"notify_url"`
+	GoodsTag    string             `json:"goods_tag,omitempty"`
+	Amount      PayJsapiAmountInfo `json:"amount"`
+	Payer       PayJsapiPayerInfo  `json:"payer"`
 }
 
 type PayJsapiRsp struct {
@@ -101,7 +99,7 @@ type PayJsapiRsp struct {
 }
 
 type PayJsapiAmountInfo struct {
-	Total int `json:"total"`
+	Total    int    `json:"total"`
 	Currency string `json:"currency,omitempty"`
 }
 
@@ -110,15 +108,33 @@ type PayJsapiPayerInfo struct {
 }
 
 type PayJsapiOutTradeNoRsp struct {
-	Appid string `json:"appid"`
-	Mchid string `json:"mchid"`
-	OutTradeNo string `json:"out_trade_no"`
-	TransactionId string `json:"transaction_id,omitempty"`
-	TradeType string `json:"trade_type,omitempty"`
-	TradeState string `json:"trade_state"`
-	TradeStateDesc string `json:"trade_state_desc"`
-	BankType string `json:"bank_type,omitempty"`
-	Attach string `json:"attach,omitempty"`
-	SuccessTime string `json:"success_time,omitempty"`
-	Payer PayJsapiPayerInfo `json:"payer"`
+	Appid          string            `json:"appid"`
+	Mchid          string            `json:"mchid"`
+	OutTradeNo     string            `json:"out_trade_no"`
+	TransactionId  string            `json:"transaction_id,omitempty"`
+	TradeType      string            `json:"trade_type,omitempty"`
+	TradeState     string            `json:"trade_state"`
+	TradeStateDesc string            `json:"trade_state_desc"`
+	BankType       string            `json:"bank_type,omitempty"`
+	Attach         string            `json:"attach,omitempty"`
+	SuccessTime    string            `json:"success_time,omitempty"`
+	Payer          PayJsapiPayerInfo `json:"payer"`
+}
+
+type QueryUserCouponsReq struct {
+	Appid          string `json:"appid"`
+	StockId        string `json:"stock_id,omitempty"`
+	Status         string `json:"status,omitempty"`
+	CreatorMchId   string `json:"creator_mchid,omitempty"`
+	SenderMchId    string `json:"sender_mchid,omitempty"`
+	AvailableMchId string `json:"available_mchid,omitempty"`
+	Offset         uint32 `json:"offset,omitempty"`
+	Limit          uint32 `json:"limit,omitempty"`
+}
+
+type QueryUserCouponsRsp struct {
+	Data       []QueryUserCouponRsp `json:"data"`
+	TotalCount uint32               `json:"total_count"`
+	Limit      uint32               `json:"limit"`
+	Offset     uint32               `json:"offset"`
 }
