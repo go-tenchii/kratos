@@ -138,3 +138,148 @@ type QueryUserCouponsRsp struct {
 	Limit      uint32               `json:"limit"`
 	Offset     uint32               `json:"offset"`
 }
+
+type VehicleParkingServiceFindReq struct {
+	Appid       string `json:"appid"`
+	SubMchId    string `json:"sub_mchid"`
+	PlateNumber string `json:"plate_number"`
+	PlateColor  string `json:"plate_color"`
+	Openid      string `json:"openid"`
+}
+
+type VehicleParkingServiceFindRsp struct {
+	PlatformNumber  string `json:"platform_number"`
+	PlatformColor   string `json:"platform_color"`
+	ServiceOpenTime string `json:"service_open_time"`
+	Openid          string `json:"openid"`
+	ServiceState    string `json:"service_state"`
+}
+
+//plate color车牌颜色，枚举值：
+//BLUE：蓝色
+//GREEN：绿色
+//YELLOW：黄色
+//BLACK：黑色
+//WHITE：白色
+//LIMEGREEN：黄绿色
+const PC_BLUE = "BLUE"
+const PC_GREEN = "GREEN"
+const PC_YELLOW = "YELLOW"
+const PC_BLACK = "BLACK"
+const PC_WHITE = "WHITE"
+const PC_LIMEGREEN = "LIMEGREEN"
+
+type VehicleParkingParkingsReq struct {
+	SubMchId     string `json:"sub_mchid"`
+	OutParkingNo string `json:"out_parking_no"`
+	PlateNumber  string `json:"plate_number"`
+	PlateColor   string `json:"plate_color"`
+	NotifyUrl    string `json:"notify_url"`
+	StartTime    string `json:"start_time"`
+	ParkingName  string `json:"parking_name"`
+	FreeDuration int    `json:"free_duration"`
+}
+
+// state enum
+const VS_NORMAL = "NORMAL"
+const VS_BLOCKED = "BLOCKED"
+
+type VehicleParkingParkingsRsp struct {
+	Id           string `json:"id"`
+	OutParkingNo string `json:"out_parking_no"`
+	PlateNumber  string `json:"plate_number"`
+	PlateColor   string `json:"plate_color"`
+	StartTime    string `json:"start_time"`
+	ParkingName  string `json:"parking_name"`
+	FreeDuration int    `json:"free_duration"`
+	State        string `json:"state"`
+	BlockReason  string `json:"block_reason"`
+}
+
+type VehicleTransactionsParkingReq struct {
+	Appid         string                           `json:"appid"`
+	SubAppid      string                           `json:"sub_appid"`
+	SubMchId      string                           `json:"sub_mchid"`
+	Description   string                           `json:"description"`
+	Attach        string                           `json:"attach"`
+	OutTradeNo    string                           `json:"out_trade_no"`
+	TradeScene    string                           `json:"trade_scene"`
+	GoodsTag      string                           `json:"goods_tag"`
+	NotifyUrl     string                           `json:"notify_url"`
+	ProfitSharing string                           `json:"profit_sharing"`
+	Amount        VehicleTransactionsParkingAmount `json:"amount"`
+	ParkingInfo   VehicleTransactionsParkingInfo   `json:"parking_info"`
+}
+
+type VehicleTransactionsParkingAmount struct {
+	Total         int    `json:"total"`
+	Currency      string `json:"currency"`
+	PayerTotal    int    `json:"payer_total,omitempty"`
+	DiscountTotal int    `json:"discount_total,omitempty"`
+}
+
+type VehicleTransactionsParkingInfo struct {
+	ParkingId        string `json:"parking_id"`
+	PlateNumber      string `json:"plate_number"`
+	PlateColor       string `json:"plate_color"`
+	StartTime        string `json:"start_time"`
+	EndTime          string `json:"end_time"`
+	ParkingName      string `json:"parking_name"`
+	ChargingDuration int    `json:"charging_duration"`
+	DeviceId         string `json:"device_id"`
+}
+
+type VehicleTransactionParkingPayer struct {
+	Openid    string `json:"openid"`
+	SubOpenid string `json:"sub_openid"`
+}
+
+type VehicleTransactionsParkingPromotionDetail struct {
+	CouponId            string `json:"coupon_id"`
+	Name                string `json:"name"`
+	Scope               string `json:"scope"`
+	Type                string `json:"type"`
+	StockId             string `json:"stock_id"`
+	Amount              int    `json:"amount"`
+	WeChatPayContribute int    `json:"wechatpay_contribute"`
+	MerchantContribute  int    `json:"merchant_contribute"`
+	OtherContribute     int    `json:"other_contribute"`
+	Currency            string `json:"currency"`
+}
+
+//user_repaid 枚举值：
+//Y：用户已还款
+//N：用户未还款
+const UR_Y = "Y"
+const UR_N = "N"
+
+//trade state 枚举值：
+//SUCCESS：支付成功
+//ACCEPTED：已接收，等待扣款
+//PAY_FAIL：支付失败(其他原因，如银行返回失败)
+//REFUND：转入退款
+const TS_SUCCESS = "SUCCESS"
+const TS_ACCEPTED = "ACCEPTED"
+const TS_PAY_FAIL = "PAY_FAIL"
+const TS_REFUND = "REFUND"
+
+type VehicleTransactionsParkingRsp struct {
+	Appid                 string                                    `json:"appid"`
+	SubAppid              string                                    `json:"sub_appid"`
+	SubMchId              string                                    `json:"sub_mchid"`
+	SpMchId               string                                    `json:"sp_mchid"`
+	Description           string                                    `json:"description"`
+	CreateTime            string                                    `json:"create_time"`
+	OutTradeNo            string                                    `json:"out_trade_no"`
+	TradeState            string                                    `json:"trade_state"`
+	TradeStateDescription string                                    `json:"trade_state_description"`
+	SuccessTime           string                                    `json:"success_time"`
+	BankType              string                                    `json:"bank_type"`
+	UserRepaid            string                                    `json:"user_repaid"`
+	Attach                string                                    `json:"attach"`
+	TradeScene            string                                    `json:"trade_scene"`
+	ParkingInfo           VehicleTransactionsParkingInfo            `json:"parking_info"`
+	Payer                 VehicleTransactionParkingPayer            `json:"payer"`
+	Amount                VehicleTransactionsParkingAmount          `json:"amount"`
+	PromotionDetail       VehicleTransactionsParkingPromotionDetail `json:"promotion_detail"`
+}
