@@ -53,6 +53,7 @@ func (c *Client) request(method string, route string, body []byte) ([]byte, erro
 	if err != nil {
 		return nil, err
 	}
+	log.Info("nonceStr: %s, request_id: %s, route: %s, rsp: %s", nonceStr, resp.Header.Get("Request-Id"), route, string(rspBody))
 	if resp.StatusCode != http.StatusOK {
 		be := &RequestErr{}
 		if err = json.Unmarshal(rspBody, be); err != nil {
@@ -60,7 +61,6 @@ func (c *Client) request(method string, route string, body []byte) ([]byte, erro
 		}
 		return nil, be
 	}
-	log.Info("nonceStr: %s, request_id: %s, route: %s, rsp: %s", nonceStr, resp.Header.Get("Request-Id"), route, string(rspBody))
 
 	serialNo := resp.Header.Get("Wechatpay-Serial")
 	if serialNo != mi.WeChatSerialNo { //不一致
