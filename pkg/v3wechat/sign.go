@@ -32,12 +32,12 @@ func Sign(method string, url string, timestamp string, nonce string, body []byte
 	return PrivateKeySignSHA256(sign, key)
 }
 
-func VerifySign(body, timestamp, nonceStr, sign, publicKey string) (err error) {
+func VerifySign(body, timestamp, nonceStr, sign string, pub *rsa.PublicKey) (err error) {
 	bf := bytes.Buffer{}
 	bf.WriteString(timestamp + "\n")
 	bf.WriteString(nonceStr + "\n")
 	bf.WriteString(body + "\n")
-	return RsaVerySignWithSHA256Base64(bf.String(), sign, publicKey)
+	return RsaVerySignWithSHA256Base64(bf.String(), sign, pub)
 }
 
 func PrivateKeySignSHA256(signData string, key string) (sign string, err error) {
@@ -81,22 +81,11 @@ func GetRandomString(length int) string {
 	return string(result)
 }
 
-func RsaVerySignWithSHA256Base64(originalData, signData string, key string) (err error) {
+func RsaVerySignWithSHA256Base64(originalData, signData string, pub *rsa.PublicKey) (err error) {
 	sign, err := base64.StdEncoding.DecodeString(signData)
 	if err != nil {
 		return err
 	}
-	block, _ := pem.Decode([]byte(key))
-	if block == nil {
-		return
-	}
-	// 解析公钥
-	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		return
-	}
-	// 类型断言
-	pub := pubInterface.(*rsa.PublicKey)
 	h := crypto.Hash.New(crypto.SHA256)
 	h.Write([]byte(originalData))
 	return rsa.VerifyPKCS1v15(pub, crypto.SHA256, h.Sum(nil), sign)
