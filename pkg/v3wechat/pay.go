@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-func (c *Client)PayJsapi(req *PayJsapiReq) (rsp *PayJsapiRsp, err error) {
+func (c *Client) PayJsapi(req *PayJsapiReq) (rsp *PayJsapiRsp, err error) {
 	var b []byte
 	if b, err = json.Marshal(req); err != nil {
 		return
 	}
-	if b, err = c.request("POST", payTransactionsJsapiUrl, b) ; err != nil {
+	if b, err = c.request("POST", payTransactionsJsapiUrl, b); err != nil {
 		return
 	}
 	rsp = &PayJsapiRsp{}
@@ -20,11 +20,11 @@ func (c *Client)PayJsapi(req *PayJsapiReq) (rsp *PayJsapiRsp, err error) {
 	return
 }
 
-func (c *Client)PayJsapiOutTradeNoQuery(outTradeNo string) (rsp *PayJsapiOutTradeNoRsp, err error) {
+func (c *Client) PayJsapiOutTradeNoQuery(outTradeNo string) (rsp *PayJsapiOutTradeNoRsp, err error) {
 	var b []byte
-	url := strings.Replace(payOutTradeNoQueryUrl,"{out_trade_no}",outTradeNo,-1)
-	url += "?mchid=" + c.mchId
-	if b, err = c.request("GET", url, nil) ; err != nil {
+	url := strings.Replace(payOutTradeNoQueryUrl, "{out_trade_no}", outTradeNo, -1)
+	url += "?mchid=" + c.GetMchInfo().MchId
+	if b, err = c.request("GET", url, nil); err != nil {
 		return
 	}
 	rsp = &PayJsapiOutTradeNoRsp{}

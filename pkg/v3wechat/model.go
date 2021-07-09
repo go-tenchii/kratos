@@ -3,10 +3,13 @@ package v3wechat
 import "fmt"
 
 type MchInfo struct {
-	MchId      string
-	PublicKey  string
-	PrivateKey string
-	SerialNo   string
+	MchId          string
+	PublicKey      string
+	PrivateKey     string
+	SerialNo       string
+	WeChatSerialNo string
+	ApiKey         string
+	Certificate    string
 }
 
 type RequestErr struct {
@@ -282,4 +285,22 @@ type VehicleTransactionsParkingRsp struct {
 	Payer                 VehicleTransactionParkingPayer            `json:"payer"`
 	Amount                VehicleTransactionsParkingAmount          `json:"amount"`
 	PromotionDetail       VehicleTransactionsParkingPromotionDetail `json:"promotion_detail"`
+}
+
+type CertificateRep struct {
+	Data []CertificateRspData `json:"data"`
+}
+
+type CertificateRspData struct {
+	SerialNo           string                           `json:"serial_no"`
+	EffectiveTime      string                           `json:"effective_time"`
+	ExpireTime         string                           `json:"expire_time"`
+	EncryptCertificate CertificateRepEncryptCertificate `json:"encrypt_certificate"`
+}
+
+type CertificateRepEncryptCertificate struct {
+	Algorithm      string `json:"algorithm"`
+	Nonce          string `json:"nonce"`
+	AssociatedData string `json:"associated_data"`
+	Ciphertext     string `json:"ciphertext"`
 }

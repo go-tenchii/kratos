@@ -3,6 +3,8 @@ package v3wechat
 const (
 	baseUrl = "https://api.mch.weixin.qq.com"
 
+	certificatesUrl = "/v3/certificates"
+
 	sendCouponStockUrl  = "/v3/marketing/favor/users/{openid}/coupons"
 	userCouponQueryUrl  = "/v3/marketing/favor/users/{openid}/coupons/{coupon_id}"
 	userCouponsQueryUrl = "/v3/marketing/favor/users/{openid}/coupons"
