@@ -198,22 +198,22 @@ type VehicleParkingParkingsRsp struct {
 
 type VehicleTransactionsParkingReq struct {
 	Appid         string                           `json:"appid"`
-	SubAppid      string                           `json:"sub_appid"`
-	SubMchId      string                           `json:"sub_mchid"`
+	SubAppid      string                           `json:"sub_appid,omitempty"`
+	SubMchId      string                           `json:"sub_mchid,omitempty"`
 	Description   string                           `json:"description"`
-	Attach        string                           `json:"attach"`
+	Attach        string                           `json:"attach,omitempty"`
 	OutTradeNo    string                           `json:"out_trade_no"`
 	TradeScene    string                           `json:"trade_scene"`
-	GoodsTag      string                           `json:"goods_tag"`
+	GoodsTag      string                           `json:"goods_tag,omitempty"`
 	NotifyUrl     string                           `json:"notify_url"`
-	ProfitSharing string                           `json:"profit_sharing"`
+	ProfitSharing string                           `json:"profit_sharing,omitempty"`
 	Amount        VehicleTransactionsParkingAmount `json:"amount"`
 	ParkingInfo   VehicleTransactionsParkingInfo   `json:"parking_info"`
 }
 
 type VehicleTransactionsParkingAmount struct {
 	Total         int    `json:"total"`
-	Currency      string `json:"currency"`
+	Currency      string `json:"currency,omitempty"`
 	PayerTotal    int    `json:"payer_total,omitempty"`
 	DiscountTotal int    `json:"discount_total,omitempty"`
 }
