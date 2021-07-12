@@ -23,3 +23,7 @@ func NewClient(mchId string, options... Option) *Client{
 	}
 	return c
 }
+
+func (c *Client) GetMchInfo() *MchInfo {
+	return c.getMchInfoFunc(c)
+}
